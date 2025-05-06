@@ -12,13 +12,13 @@ struct SetupView: View {
     
     var body: some View {
         NavigationStack {
+            Spacer()
+            
             VStack {
-                Spacer()
                 Text("Let's set you up.")
                     .font(.largeTitle)
                     .fontWeight(Font.Weight.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
                 Button("Start") {
                     isSetup = true
                 }
