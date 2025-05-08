@@ -12,18 +12,30 @@ struct AlarmView: View {
     
     var body: some View {
         SwiftUI.NavigationView {
-            List {
-                ForEach(stationManager.stations) { station in
-                    VStack(alignment: .leading) {
-                        Text(station.name)
-                            .font(.headline)
-                        Text("Lat: \(station.latitude), Lon: \(station.longitude)")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+            VStack {
+                List {
+                    ForEach(stationManager.stations) { station in
+                        VStack(alignment: .leading) {
+                            Text(station.name)
+                                .font(.headline)
+                            Text("Lat: \(station.latitude), Lon: \(station.longitude)")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
+                .navigationTitle("Train Stations")
+                
+                NavigationLink(destination: LocationView()) {
+                    Text("Start Alarm View")
+                        .font(.headline)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(30)
+                }
+                .padding()
             }
-            .navigationTitle("Train Stations")
         }
         .onAppear {
             stationManager.fetchStations()
