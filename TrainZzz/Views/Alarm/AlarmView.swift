@@ -27,7 +27,7 @@ struct AlarmView: View {
                 .navigationTitle("Train Stations")
                 
                 NavigationLink(destination: LocationView()) {
-                    Text("Start Alarm View")
+                    Text("Start Location View")
                         .font(.headline)
                         .padding()
                         .background(Color.blue)
