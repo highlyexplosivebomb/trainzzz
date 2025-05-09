@@ -9,28 +9,57 @@ import SwiftUI
 
 struct SetupView: View {
     @State private var isSetup: Bool = false
-    
+    @StateObject private var locationManager = SetupLocationManager()
+
     var body: some View {
         NavigationStack {
-            Spacer()
-            
-            VStack {
-                Text("Let's set you up.")
+            VStack(spacing: 40) {
+                Spacer()
+
+                Text("Let's get you set up.")
                     .font(.largeTitle)
-                    .fontWeight(Font.Weight.bold)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Button("Start") {
-                    isSetup = true
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+
+                VStack {
+                    Button(action: {
+                        isSetup = true
+                    }) {
+                        Text("Start")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(30)
+                            .padding(.horizontal, 80)
+                    }
+                    .padding(.bottom)
+                    
+                    Button(action: {
+                        locationManager.request()
+                    }) {
+                        Text("Request Permissions")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(30)
+                            .padding(.horizontal, 80)
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Spacer()
             }
-            .padding(35)
             .navigationDestination(isPresented: $isSetup) {
-                NavigationView().navigationBarBackButtonHidden(true)
+                NavigationView().navigationBarBackButtonHidden(true) // Replace with your real destination view
             }
         }
     }
 }
+
 
 #Preview {
     SetupView()
