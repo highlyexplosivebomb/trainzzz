@@ -15,7 +15,10 @@ struct SetupView: View {
         NavigationStack {
             VStack(spacing: 40) {
                 Spacer()
-
+                
+                Image("TrainZzzIcon")
+                    .resizable()
+                
                 Text("Let's get you set up.")
                     .font(.largeTitle)
                     .fontWeight(.semibold)
@@ -53,6 +56,7 @@ struct SetupView: View {
 
                 Spacer()
             }
+            .background(Color(red: 245 / 255, green: 236 / 255, blue: 227 / 255))
             .onAppear {
                 if(locationManager.authorisationStatus == .authorizedWhenInUse || locationManager.authorisationStatus == .authorizedAlways){
                     isSetup = true

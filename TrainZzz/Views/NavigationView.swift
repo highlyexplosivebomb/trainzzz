@@ -27,7 +27,7 @@ struct NavigationView: View {
                     Image(systemName: "map.fill")
                     Text("Near Me")
                 }
-        }
+        }.navigationBarHidden(true)
     }
 }
 

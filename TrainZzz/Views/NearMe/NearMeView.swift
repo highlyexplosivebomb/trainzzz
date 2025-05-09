@@ -46,6 +46,17 @@ struct NearMeView: View {
             }
             .padding(.horizontal)
             
+            Divider()
+            
+            ScrollView {
+                VStack {
+                    ForEach(stationManager.stations) { station in
+                        Station(name: station.name)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            
             Spacer()
         }
         .onAppear {
@@ -73,6 +84,32 @@ struct FilterButton: View {
         .background(buttonColor)
         .cornerRadius(5)
         .foregroundColor(Color.black)
+    }
+}
+
+struct Station: View {
+    let name: String
+    
+    var body: some View {
+        HStack {
+            Image("SydneyTrainsIcon")
+                .resizable()
+                .scaledToFit()
+            
+            Divider()
+            Text("500m")
+            Divider()
+            Text(name)
+            Spacer()
+            
+            Button(action: {
+                print("I don't go anywhere yet...")
+            }) {
+                Image(systemName: "info.circle")
+            }
+        }
+        .frame(maxHeight: 30, alignment: .leading)
+        .padding(.horizontal)
     }
 }
 
