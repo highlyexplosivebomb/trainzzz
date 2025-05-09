@@ -24,6 +24,19 @@ struct SetupView: View {
 
                 VStack {
                     Button(action: {
+                        locationManager.request()
+                    }) {
+                        Text("Request Permissions")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(30)
+                            .padding(.horizontal, 80)
+                    }
+                    
+                    Button(action: {
                         isSetup = true
                     }) {
                         Text("Start")
@@ -36,22 +49,14 @@ struct SetupView: View {
                             .padding(.horizontal, 80)
                     }
                     .padding(.bottom)
-                    
-                    Button(action: {
-                        locationManager.request()
-                    }) {
-                        Text("Request Permissions")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(30)
-                            .padding(.horizontal, 80)
-                    }
                 }
 
                 Spacer()
+            }
+            .onAppear {
+                if(locationManager.authorisationStatus == .authorizedWhenInUse || locationManager.authorisationStatus == .authorizedAlways){
+                    isSetup = true
+                }
             }
             .navigationDestination(isPresented: $isSetup) {
                 NavigationView().navigationBarBackButtonHidden(true) // Replace with your real destination view

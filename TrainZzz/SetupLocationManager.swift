@@ -20,8 +20,6 @@ class SetupLocationManager: NSObject, ObservableObject, CLLocationManagerDelegat
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
 
         self.authorisationStatus = locationManager.authorizationStatus
-        // locationManager.requestAlwaysAuthorization()
-        locationManager.startUpdatingLocation()
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
