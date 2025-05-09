@@ -37,6 +37,15 @@ struct LocationView: View {
             .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(30)
+            
+            Button("Request", action: {
+                locationManager.request()
+            })
+            .font(.headline)
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(30)
         }
     }
 }
