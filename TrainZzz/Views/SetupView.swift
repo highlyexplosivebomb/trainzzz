@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SetupView: View {
     @State private var isSetup: Bool = false
+    @StateObject private var locationManager = SetupLocationManager()
 
     var body: some View {
         NavigationStack {
@@ -21,17 +22,33 @@ struct SetupView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
 
-                Button(action: {
-                    isSetup = true
-                }) {
-                    Text("Start")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(30)
-                        .padding(.horizontal, 80)
+                VStack {
+                    Button(action: {
+                        isSetup = true
+                    }) {
+                        Text("Start")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(30)
+                            .padding(.horizontal, 80)
+                    }
+                    .padding(.bottom)
+                    
+                    Button(action: {
+                        locationManager.request()
+                    }) {
+                        Text("Request Permissions")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(30)
+                            .padding(.horizontal, 80)
+                    }
                 }
 
                 Spacer()
