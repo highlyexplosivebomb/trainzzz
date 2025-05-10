@@ -39,7 +39,7 @@ struct SetupView: View {
                     }
                     
                     Button(action: {
-                        viewModel.isSetup = true
+                        viewModel.startButtonClick()
                     }) {
                         Text("Start")
                             .font(.headline)
@@ -51,14 +51,17 @@ struct SetupView: View {
                             .padding(.horizontal, 80)
                     }
                     .padding(.bottom)
-                    .disabled(!viewModel.startIsDisabled)
+                    Text("Location permissions must be given for app to function")
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(Color(red: 1.0, green: 0.0, blue: 0.1))
+                        .opacity(viewModel.permissionNotGranted ? 1 : 0)
                 }
 
                 Spacer()
             }
             .background(Color(red: 245 / 255, green: 236 / 255, blue: 227 / 255))
             .onAppear {
-                viewModel.checkForExistingPermissions()
+                _ = viewModel.checkForExistingPermissions()
             }
             .navigationDestination(isPresented: $viewModel.isSetup) {
                 NavigationView().navigationBarBackButtonHidden(true) // Replace with your real destination view
