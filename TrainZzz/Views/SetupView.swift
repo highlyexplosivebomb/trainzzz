@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SetupView: View {
-    @State private var isSetup: Bool = false
-    @StateObject private var locationManager = SetupLocationManager()
+    @StateObject private var viewModel = SetupViewModel()
 
     var body: some View {
         NavigationStack {
@@ -24,7 +23,7 @@ struct SetupView: View {
 
                 VStack {
                     Button(action: {
-                        locationManager.request()
+                        viewModel.request()
                     }) {
                         Text("Request Permissions")
                             .font(.headline)
@@ -37,7 +36,7 @@ struct SetupView: View {
                     }
                     
                     Button(action: {
-                        isSetup = true
+                        viewModel.isSetup = true
                     }) {
                         Text("Start")
                             .font(.headline)
@@ -49,16 +48,15 @@ struct SetupView: View {
                             .padding(.horizontal, 80)
                     }
                     .padding(.bottom)
+                    .disabled(!viewModel.startIsDisabled)
                 }
 
                 Spacer()
             }
             .onAppear {
-                if(locationManager.authorisationStatus == .authorizedWhenInUse || locationManager.authorisationStatus == .authorizedAlways){
-                    isSetup = true
-                }
+                viewModel.checkForExistingPermissions()
             }
-            .navigationDestination(isPresented: $isSetup) {
+            .navigationDestination(isPresented: $viewModel.isSetup) {
                 NavigationView().navigationBarBackButtonHidden(true) // Replace with your real destination view
             }
         }

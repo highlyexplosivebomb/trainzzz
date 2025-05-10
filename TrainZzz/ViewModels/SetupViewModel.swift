@@ -8,7 +8,32 @@
 import Foundation
 import SwiftUI
 
-class SetupViewModel
+class SetupViewModel : ObservableObject
 {
+    @Published public var isSetup: Bool = false
+    @Published public var startIsDisabled = true
+    private var locationManager = SetupLocationManager()
     
+    var hasLocationPermissions : Bool {
+        get
+        {
+            return locationManager.authorisationStatus == .authorizedWhenInUse || locationManager.authorisationStatus == .authorizedAlways
+        }
+    }
+    
+    func request()
+    {
+        locationManager.request()
+        if(hasLocationPermissions)
+        {
+            startIsDisabled = false
+        }
+    }
+    
+    func checkForExistingPermissions()
+    {
+        if(hasLocationPermissions){
+            isSetup = true
+        }
+    }
 }
