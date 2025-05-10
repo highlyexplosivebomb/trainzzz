@@ -8,8 +8,21 @@
 import SwiftUI
 
 struct TripsView: View {
+    @StateObject private var viewModel = TripsViewModel()
+
     var body: some View {
-        Text("I'm just TripView with an s!")
+        VStack {
+            Text("Stations")
+            List(viewModel.stops) { stop in
+                VStack(alignment: .leading) {
+                    Text(stop.stopName)
+                        .font(.headline)
+                    Text("Code: \(stop.stopCode), Location: (\(stop.stopLat), \(stop.stopLon))")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
     }
 }
 
