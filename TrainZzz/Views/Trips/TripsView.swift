@@ -16,10 +16,7 @@ struct TripsView: View {
             List(viewModel.stops) { stop in
                 VStack(alignment: .leading) {
                     Text(stop.stopName)
-                        .font(.headline)
-                    Text("Code: \(stop.stopCode), Location: (\(stop.stopLat), \(stop.stopLon))")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(.callout)
                 }
             }
         }
