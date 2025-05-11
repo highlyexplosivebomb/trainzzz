@@ -28,21 +28,8 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
 
         self.authorisationStatus = locationManager.authorizationStatus
         locationManager.startUpdatingLocation() // this should be called by VM as needed
-        // startMonitoringRegion()
     }
-    
-    ////        #if targetEnvironment(simulator)
-    ////        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-    ////            print("Simulating region entry in simulator...")
-    ////            let mockRegion = CLCircularRegion(
-    ////                center: self.targetCoordinate,
-    ////                radius: self.radius,
-    ////                identifier: "TargetRegion"
-    ////            )
-    ////            self.locationManager(self.locationManager, didEnterRegion: mockRegion)
-    ////        }
-    ////        #endif
-    
+
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         authorisationStatus = status
@@ -67,16 +54,12 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         }
     }
     
-    public func request() {
-        locationManager.requestAlwaysAuthorization()
-    }
-    
     public func startMonitoringRegion() {
         // Clear any existing region
         for region in locationManager.monitoredRegions {
             if let circular = region as? CLCircularRegion, circular.identifier == "TargetRegion" {
                 locationManager.stopMonitoring(for: circular)
-                print("🧹 Stopped monitoring previous region")
+                print("Stopped monitoring previous region")
                 }
         }
         
@@ -85,22 +68,32 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             region.notifyOnEntry = true
             region.notifyOnExit = true
             locationManager.startMonitoring(for: region)
-            print("📍 Started monitoring region")
+            print("Started monitoring region")
 
             // Manually trigger if already inside
             if let current = locationManager.location, region.contains(current.coordinate) {
-                print("🟢 Already in region — manually triggering alarm")
+                print("Already in region — manually triggering alarm")
                 handleRegionEntry()
             }
         } else {
-            print("❌ Region monitoring not available")
+            print("Region monitoring not available")
         }
+    }
+    
+    public func request() {
+        locationManager.requestAlwaysAuthorization()
     }
 
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         print("Entered any region: \(region.identifier)")
         guard region.identifier == "TargetRegion" else { return }
         handleRegionEntry()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        guard region.identifier == "TargetRegion" else { return }
+        isInRegion = false
+        print("i have left region")
     }
     
     private func handleRegionEntry() {
@@ -133,12 +126,6 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        guard region.identifier == "TargetRegion" else { return }
-        isInRegion = false
-        print("i have left region")
-    }
-    
     // remove these methods, the audio helper should be passed in possibly injected as an environment object.
     public func playAlarmSound() {
         audioHelper.playAlarmSound()

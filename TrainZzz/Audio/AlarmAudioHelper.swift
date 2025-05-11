@@ -22,16 +22,16 @@ class AlarmAudioHelper: ObservableObject {
         let session = AVAudioSession.sharedInstance()
         do {
             try session.setCategory(.playback)
-            print("✅ Audio session category set")
+            print("Audio session category set")
         } catch {
-            print("❌ setCategory failed: \(error)")
+            print("setCategory failed: \(error)")
         }
 
         do {
             try session.setActive(true)
-            print("✅ Audio session activated")
+            print("Audio session activated")
         } catch {
-            print("❌ setActive failed: \(error)")
+            print("setActive failed: \(error)")
         }
     }
 
@@ -41,7 +41,7 @@ class AlarmAudioHelper: ObservableObject {
             return
         }
         
-        print("✅ alarm.mp3 file URL: \(url)")
+        print("alarm.mp3 file URL: \(url)")
 
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
