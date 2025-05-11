@@ -28,51 +28,16 @@ struct StopSelectView: View {
                 .padding(.horizontal)
                 .focused($isFieldFocused)
 
-            if let stop = selectedStop {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Selected Station:")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Text(stop.stopName)
-                        .font(.body)
-                        .bold()
-                }
-                .padding(.horizontal)
-                .padding(.top)
-            }
-
             Spacer()
         }
         .animation(.easeInOut, value: isFieldFocused)
         .overlay(alignment: .top) {
             if !viewModel.stops.isEmpty && isFieldFocused {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(viewModel.stops.prefix(10)) { stop in
-                            Button(action: {
-                                selectedStop = stop
-                                viewModel.searchText = stop.stopName
-                                isFieldFocused = false
-                            }) {
-                                HStack {
-                                    Text(stop.stopName)
-                                        .foregroundColor(.primary)
-                                        .padding(.vertical, 8)
-                                        .padding(.horizontal)
-                                    Spacer()
-                                }
-                                .background(Color.white)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                    .background(Color.white)
-                    .cornerRadius(8)
-                    .shadow(radius: 5)
-                    .padding(.horizontal)
+                StopDropdownList(stops: viewModel.stops) { stop in
+                    selectedStop = stop
+                    viewModel.searchText = stop.stopName
+                    isFieldFocused = false
                 }
-                .frame(maxHeight: 300)
-                .padding(.top, 60)
             }
         }
     }

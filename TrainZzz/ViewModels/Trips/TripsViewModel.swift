@@ -1,22 +1,23 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class TripsViewModel: ObservableObject {
     @Published var fromStop: Stop? = nil
     @Published var toStop: Stop? = nil
     @Published var allStops: [Stop] = []
-    
-    init()
-    {
+    @Published var tripResults: [TripSummary] = []
+
+    init() {
         allStops = loadStops()
     }
-    
+
     func loadStops() -> [Stop] {
-        if let url = Bundle.main.url(forResource: "stops", withExtension: "txt"),
-           let contents = try? String(contentsOf: url, encoding: .utf8) {
-            return parseStopsCSV(from: contents)
+        guard let url = Bundle.main.url(forResource: "stops", withExtension: "txt"),
+              let contents = try? String(contentsOf: url, encoding: .utf8) else {
+            return []
         }
-        return []
+        return parseStopsCSV(from: contents)
     }
 
     func parseStopsCSV(from contents: String) -> [Stop] {
@@ -26,22 +27,17 @@ class TripsViewModel: ObservableObject {
         let rows = lines.dropFirst().filter { !$0.isEmpty }
         var stops: [Stop] = []
 
-        let stationNameRegex = try! NSRegularExpression(pattern: #"^[A-Za-z\s]+ Station$"#)
+        let stationNameRegex = try! NSRegularExpression(pattern: #"^[A-Za-z\s]+ Station, Platform \d+$"#)
 
         for row in rows {
             var columns = row.components(separatedBy: "\",\"")
             guard columns.count >= 10 else { continue }
 
-            // Fix first and last column quotes
             columns[0] = columns[0].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             columns[9] = columns[9].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-
-            // Also trim others just in case (optional)
             columns = columns.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
 
             let stopName = columns[2]
-
-            // Match with regex
             let range = NSRange(location: 0, length: stopName.utf16.count)
             if stationNameRegex.firstMatch(in: stopName, options: [], range: range) == nil {
                 continue
@@ -62,5 +58,84 @@ class TripsViewModel: ObservableObject {
             stops.append(stop)
         }
         return stops
+    }
+
+    func fetchTripPlan() {
+        guard let from = fromStop, let to = toStop else {
+            print("Missing stop selection")
+            return
+        }
+
+        let baseURL = "https://api.transport.nsw.gov.au/v1/tp/trip"
+        var components = URLComponents(string: baseURL)!
+
+        let fromId = from.parentStation
+        let toId = to.parentStation
+
+        components.queryItems = [
+            URLQueryItem(name: "outputFormat", value: "rapidJSON"),
+            URLQueryItem(name: "coordOutputFormat", value: "EPSG:4326"),
+            URLQueryItem(name: "depArrMacro", value: "dep"),
+            URLQueryItem(name: "type_origin", value: "stopID"),
+            URLQueryItem(name: "name_origin", value: "\(fromId)"),
+            URLQueryItem(name: "type_destination", value: "stopID"),
+            URLQueryItem(name: "name_destination", value: "\(toId)"),
+            URLQueryItem(name: "itdDateTimeDepArr", value: "dep"),
+            URLQueryItem(name: "calcNumberOfTrips", value: "5")
+        ]
+
+        guard let url = components.url else {
+            print("Invalid URL")
+            return
+        }
+        print("Calling: \(components.url?.absoluteString ?? "Invalid URL")")
+
+        var request = URLRequest(url: url)
+        request.setValue("apikey eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3bnVialJIeGFFVERSMTYzelhoNXpiMzlJS0ZDbE0wSnZsSFk3SW1hWDF3IiwiaWF0IjoxNzQ2OTUzMzA0fQ._JZ7-gUTvV2pZlJb212c5pdQwVI2mb_MPRLtIJ-F5D4", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            if let error = error {
+                print("Error fetching trip: \(error)")
+                return
+            }
+
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            do {
+                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                let trips = ((json?["journeys"] as? [[String: Any]]) ?? []).compactMap { journeyDict -> TripSummary? in
+                    guard
+                        let legs = journeyDict["legs"] as? [[String: Any]],
+                        let leg = legs.first,
+                        let origin = leg["origin"] as? [String: Any],
+                        let destination = leg["destination"] as? [String: Any],
+                        let originName = origin["name"] as? String,
+                        let destName = destination["name"] as? String,
+                        let depTime = origin["departureTimePlanned"] as? String,
+                        let arrTime = destination["arrivalTimePlanned"] as? String
+                    else {
+                        return nil
+                    }
+
+                    return TripSummary(
+                        originName: originName,
+                        destinationName: destName,
+                        departureTime: depTime,
+                        arrivalTime: arrTime
+                    )
+                }
+
+                DispatchQueue.main.async {
+                    self.tripResults = trips
+                }
+
+            } catch {
+                print("JSON parse error: \(error)")
+            }
+
+        }.resume()
     }
 }
