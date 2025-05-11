@@ -11,9 +11,10 @@ import CoreLocation
 
 struct NearMeView: View {
     @StateObject var stationManager = StationManager()
+    @StateObject var viewModel = StationDeparturesViewModel()
     @State private var isClicked = false
     @State private var selectedStation: StationData = StationData(id: "", name: "", type: "", coord: [], properties: nil)
-    let initialPosition: MapCameraPosition = .userLocation(fallback: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500)))
+    let initialPosition: MapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500))
 
     var body: some View {
         VStack {
@@ -24,11 +25,22 @@ struct NearMeView: View {
                             selectedStation = station
                             isClicked = true
                         }) {
-                            Image("SydneyTrainsIcon")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                                .shadow(radius: 3)
+                            let tsn = Int(station.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+                            if let station = viewModel.getStationByTSN(tsn: tsn) {
+                                if station.transportMode.contains("Metro") && !station.transportMode.contains("Train") {
+                                    Image("SydneyMetroIcon")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                        .shadow(radius: 3)
+                                } else {
+                                    Image("SydneyTrainsIcon")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 20, height: 20)
+                                        .shadow(radius: 3)
+                                }
+                            }
                         }
                     }
                 }
@@ -72,6 +84,7 @@ struct NearMeView: View {
         }
         .onAppear {
             stationManager.fetchStations()
+            viewModel.fetchFacilities()
         }
         .sheet(isPresented: $isClicked) {
             StationDeparturesView(selectedStation: $selectedStation)
@@ -102,6 +115,7 @@ struct FilterButton: View {
 }
 
 struct Station: View {
+    @StateObject var viewModel = StationDeparturesViewModel()
     @Binding var isClicked: Bool
     @Binding var selectedStation: StationData
     let station: StationData
@@ -109,9 +123,19 @@ struct Station: View {
     
     var body: some View {
         HStack {
-            Image("SydneyTrainsIcon")
-                .resizable()
-                .scaledToFit()
+            // There's a lot of yucky code right now tbh. But seeing a Sydney Trains icon on a Sydney Metro station is worse. I'll clean this up soon :D
+            let tsn = Int(station.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+            if let station = viewModel.getStationByTSN(tsn: tsn) {
+                if station.transportMode.contains("Metro") && !station.transportMode.contains("Train") {
+                    Image("SydneyMetroIcon")
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Image("SydneyTrainsIcon")
+                        .resizable()
+                        .scaledToFit()
+                }
+            }
             
             Divider()
             Text(station.name)
@@ -128,6 +152,9 @@ struct Station: View {
             }) {
                 Image(systemName: "info.circle")
             }
+        }
+        .onAppear() {
+            viewModel.fetchFacilities()
         }
         .frame(maxHeight: 30, alignment: .leading)
         .padding(.horizontal)

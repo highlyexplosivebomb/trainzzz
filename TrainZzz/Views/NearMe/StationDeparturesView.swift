@@ -21,11 +21,22 @@ struct StationDeparturesView: View {
             .frame(height: UIScreen.main.bounds.height / 12)
 
             HStack {
-                Image("SydneyTrainsIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50, height: 50)
-                    .shadow(radius: 3)
+                let tsn = Int(selectedStation.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+                if let station = viewModel.getStationByTSN(tsn: tsn) {
+                    if station.transportMode.contains("Metro") && !station.transportMode.contains("Train") {
+                        Image("SydneyMetroIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .shadow(radius: 3)
+                    } else {
+                        Image("SydneyTrainsIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .shadow(radius: 3)
+                    }
+                }
                 
                 Spacer()
                 
