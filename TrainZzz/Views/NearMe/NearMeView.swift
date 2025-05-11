@@ -7,18 +7,21 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct NearMeView: View {
     @StateObject var stationManager = StationManager()
-    @State var isClicked = false
+    @State private var isClicked = false
+    @State private var selectedStation: StationData = StationData(id: "", name: "", type: "", coord: [], properties: nil)
     let initialPosition: MapCameraPosition = .userLocation(fallback: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500)))
 
     var body: some View {
-        VStack() {
+        VStack {
             Map(initialPosition: initialPosition) {
                 ForEach(stationManager.stations) { station in
                     Annotation("", coordinate: CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude)) {
                         Button(action: {
+                            selectedStation = station
                             isClicked = true
                         }) {
                             Image("SydneyTrainsIcon")
@@ -49,9 +52,17 @@ struct NearMeView: View {
             Divider()
             
             ScrollView {
+                if stationManager.stations.isEmpty {
+                    Text("No nearby stations!")
+                }
+                
                 VStack {
                     ForEach(stationManager.stations) { station in
-                        Station(name: station.name)
+                        let stationLocation = CLLocation(latitude: station.latitude, longitude: station.longitude)
+                        let currentLocation = CLLocation(latitude: -33.8688, longitude: 151.2093)
+                        let distance = stationLocation.distance(from: currentLocation)
+                        
+                        Station(isClicked: $isClicked, selectedStation: $selectedStation, station: station, distance: distance)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -61,6 +72,9 @@ struct NearMeView: View {
         }
         .onAppear {
             stationManager.fetchStations()
+        }
+        .sheet(isPresented: $isClicked) {
+            StationDeparturesView(selectedStation: $selectedStation)
         }
     }
 }
@@ -88,7 +102,10 @@ struct FilterButton: View {
 }
 
 struct Station: View {
-    let name: String
+    @Binding var isClicked: Bool
+    @Binding var selectedStation: StationData
+    let station: StationData
+    let distance: Double
     
     var body: some View {
         HStack {
@@ -97,13 +114,17 @@ struct Station: View {
                 .scaledToFit()
             
             Divider()
-            Text("500m")
-            Divider()
-            Text(name)
+            Text(station.name)
             Spacer()
+            if Int(distance) > 1000 {
+                Text(String(format: "%.1fkm", distance / 1000))
+            } else {
+                Text("\(Int(distance))m")
+            }
             
             Button(action: {
-                print("I don't go anywhere yet...")
+                selectedStation = station
+                isClicked = true
             }) {
                 Image(systemName: "info.circle")
             }
