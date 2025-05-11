@@ -42,13 +42,11 @@ struct LocationView: View {
             .padding(.bottom)
         }
         .onAppear {
-            print("location viw initialized")
-            
             if locationManager.authorisationStatus == .authorizedAlways {
-                print("🔐 Already authorized — starting region monitoring")
+                print("Already authorized — starting region monitoring")
                 locationManager.startMonitoringRegion()
             } else {
-                print("🔐 Not authorized yet — requesting permission")
+                print("Not authorized yet — requesting permission")
                 locationManager.request()
             }
         }
@@ -56,5 +54,10 @@ struct LocationView: View {
 }
 
 #Preview {
+    let audioHelper = AlarmAudioHelper()
+    let locationManager = AppLocationManager(audioHelper: audioHelper)
+    
     LocationView()
+        .environmentObject(locationManager)
+        .environmentObject(audioHelper)
 }
