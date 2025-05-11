@@ -2,16 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- Required location usage descriptions -->
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>We use your location to trigger an alarm.</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>We use your location in the background to trigger an alarm.</string>
-
-    <!-- Enable location updates in background -->
     <key>UIBackgroundModes</key>
     <array>
         <string>location</string>
+        <string>processing</string>
+        <string>audio</string>
     </array>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location to detect when you're near your train stop.</string>
+
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This allows TrainZzz to wake you even when the app is in the background.</string>
+
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>TrainZzz needs background location to play an alarm when you arrive.</string>
 </dict>
 </plist>
