@@ -6,30 +6,94 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct AlarmConfigView: View {
-    @StateObject private var viewModel = AlarmConfigViewModel()
+    @StateObject private var alarmConfigViewModel = AlarmConfigViewModel()
     @StateObject private var destinationViewModel: StopViewModel
+
+    @FocusState private var isFieldFocused: Bool
 
     init() {
         let alarmConfigVM = AlarmConfigViewModel()
-        _viewModel = StateObject(wrappedValue: alarmConfigVM)
+        _alarmConfigViewModel = StateObject(wrappedValue: alarmConfigVM)
         _destinationViewModel = StateObject(wrappedValue: StopViewModel(allStops: alarmConfigVM.allStops))
     }
 
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil, from: nil, for: nil
-                    )
+        ScrollView {
+            Spacer()
+            Text("Configure Your Alarm")
+                .font(.largeTitle)
+                .bold()
+                .padding()
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Radius: \(Int(alarmConfigViewModel.alarmRadius))m")
+                    .bold()
+                    .padding(.horizontal)
+                Slider(value: $alarmConfigViewModel.alarmRadius, in: 200...1500, step: 100)
+                    .padding()
+            }
+            .padding()
+            
+            VStack {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Select Your Destination")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+
+                    TextField("Start typing...", text: $destinationViewModel.searchText)
+                        .padding(10)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                        .focused($isFieldFocused)
+
+                    if !destinationViewModel.stops.isEmpty && isFieldFocused {
+                        DestinationDropdownListView(stops: destinationViewModel.stops) { stop in
+                            alarmConfigViewModel.destination = stop
+                            destinationViewModel.searchText = stop.stopName
+                            isFieldFocused = false
+                        }
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .shadow(radius: 5)
+                        .padding(.top, -8)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
                 }
-            StopSelectView(selectedStop: $viewModel.destination, viewModel: destinationViewModel)
-                .offset(y: 250)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+                )
+                .padding(.horizontal)
+            }
+            .animation(.easeInOut, value: isFieldFocused)
+            .padding(.bottom)
+            
+            if let destination = alarmConfigViewModel.destination {
+                let coordinate = CLLocationCoordinate2D(latitude: destination.stopLat, longitude: destination.stopLon)
+
+                NavigationLink(destination: LocationView(
+                    targetCoordinates: coordinate,
+                    targetRadius: alarmConfigViewModel.alarmRadius,
+                    destination: destination.stopName
+                )) {
+                    Text("Start Alarm")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                }
+                .cornerRadius(20)
+                .padding()
+            }
         }
+        .ignoresSafeArea(.keyboard)
     }
 }
 

@@ -6,9 +6,35 @@
 //
 
 import SwiftUI
+import MapKit
+import CoreLocation
 
 struct LocationView: View {
     @EnvironmentObject var locationManager: AppLocationManager
+    private let targetCoordinates: CLLocationCoordinate2D
+    private let targetRadius: CLLocationDistance
+    private let heading: String
+    
+    var distanceToDestination: String {
+        guard let currentLocation = locationManager.getCurrentLocation() else {
+            return "-"
+        }
+        let current = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+        let target = CLLocation(latitude: targetCoordinates.latitude, longitude: targetCoordinates.longitude)
+        let distance = current.distance(from: target)
+        
+        if distance >= 1000 {
+            return String(format: "%.1f km", distance / 1000)
+        } else {
+            return "\(Int(distance)) m"
+        }
+    }
+    
+    init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String) {
+        self.targetCoordinates = targetCoordinates
+        self.targetRadius = targetRadius
+        self.heading = "My Current Trip to \(destination)"
+    }
     
     var body: some View {
         VStack {
@@ -16,10 +42,37 @@ struct LocationView: View {
                 .edgesIgnoringSafeArea(.all)
                 .animation(.easeInOut, value: locationManager.isInRegion)
                 .navigationBarBackButtonHidden(true) // this will hide the back button
-        
-            Text("Red means not there, green means there")
-                .padding()
-        
+            
+            VStack(alignment: .leading, spacing: 15) {
+                Text(heading)
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.top)
+                    .padding(.horizontal)
+            }
+            .padding(.horizontal, 15)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            MapView(coordinate: locationManager.getCurrentLocation()!)
+            
+            VStack(alignment: .leading, spacing: 15) {
+                Text("Nearest Station")
+                    .font(.title2)
+                    .bold()
+                
+                Text("Strathfield Station")
+                    .font(.title2)
+                
+                Text("Distance to Destination")
+                    .font(.title2)
+                    .bold()
+                
+                Text(distanceToDestination)
+                    .font(.title2)
+            }
+            .padding(.horizontal, 15)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
             HStack {
                 Button("Start Alarm", action: {
                     locationManager.playAlarmSound()
@@ -39,11 +92,11 @@ struct LocationView: View {
                 .foregroundColor(.white)
                 .cornerRadius(30)
             }
-            .padding(.bottom)
+            .padding(.vertical)
         }
         .onAppear {
             if locationManager.authorisationStatus == .authorizedAlways {
-                locationManager.startMonitoringRegion()
+                locationManager.startMonitoringRegion(targetCoordinates: self.targetCoordinates, targetRadius: self.targetRadius)
             } else {
                 locationManager.request()
             }
@@ -54,8 +107,9 @@ struct LocationView: View {
 #Preview {
     let audioHelper = AlarmAudioHelper()
     let locationManager = AppLocationManager(audioHelper: audioHelper)
+    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
     
-    LocationView()
+    LocationView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
         .environmentObject(locationManager)
         .environmentObject(audioHelper)
 }

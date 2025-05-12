@@ -10,6 +10,7 @@ import SwiftUI
 
 class AlarmConfigViewModel: ObservableObject {
     @Published var destination: Stop? = nil
+    @Published var alarmRadius: Double = 500
     @Published var allStops: [Stop] = []
 
     init()
