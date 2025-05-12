@@ -15,6 +15,21 @@ struct LocationView: View {
     private let targetRadius: CLLocationDistance
     private let heading: String
     
+    var distanceToDestination: String {
+        guard let currentLocation = locationManager.getCurrentLocation() else {
+            return "-"
+        }
+        let current = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+        let target = CLLocation(latitude: targetCoordinates.latitude, longitude: targetCoordinates.longitude)
+        let distance = current.distance(from: target)
+        
+        if distance >= 1000 {
+            return String(format: "%.1f km", distance / 1000)
+        } else {
+            return "\(Int(distance)) m"
+        }
+    }
+    
     init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String) {
         self.targetCoordinates = targetCoordinates
         self.targetRadius = targetRadius
@@ -41,18 +56,18 @@ struct LocationView: View {
             MapView(coordinate: locationManager.getCurrentLocation()!)
             
             VStack(alignment: .leading, spacing: 15) {
-                Text("Nearest Station:")
+                Text("Nearest Station")
                     .font(.title2)
                     .bold()
                 
                 Text("Strathfield Station")
                     .font(.title2)
                 
-                Text("Distance to Destination:")
+                Text("Distance to Destination")
                     .font(.title2)
                     .bold()
                 
-                Text("500m")
+                Text(distanceToDestination)
                     .font(.title2)
             }
             .padding(.horizontal, 15)
