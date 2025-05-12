@@ -8,48 +8,56 @@
 import SwiftUI
 
 struct LocationView: View {
-    @StateObject private var locationManager = LocationManager()
-
+    @EnvironmentObject var locationManager: AppLocationManager
+    
     var body: some View {
-        Color(locationManager.isInRegion ? .green : .red)
-            .edgesIgnoringSafeArea(.all)
-            .animation(.easeInOut, value: locationManager.isInRegion)
-            // .navigationBarBackButtonHidden(true) this will hide the back button
+        VStack {
+            Color(locationManager.isInRegion ? .green : .red)
+                .edgesIgnoringSafeArea(.all)
+                .animation(.easeInOut, value: locationManager.isInRegion)
+                .navigationBarBackButtonHidden(true) // this will hide the back button
         
-        Text("Red means not there, green means there")
-            .padding()
+            Text("Red means not there, green means there")
+                .padding()
         
-        HStack {
-            Button("Start Alarm", action: {
-                locationManager.playAlarmSound()
-            })
-            .font(.headline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(30)
+            HStack {
+                Button("Start Alarm", action: {
+                    locationManager.playAlarmSound()
+                })
+                .font(.headline)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(30)
             
-            Button("Stop Alarm", action: {
-                locationManager.stopAlarmSound()
-            })
-            .font(.headline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(30)
-            
-            Button("Request", action: {
+                Button("Stop Alarm", action: {
+                    locationManager.stopAlarmSound()
+                })
+                .font(.headline)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(30)
+            }
+            .padding(.bottom)
+        }
+        .onAppear {
+            if locationManager.authorisationStatus == .authorizedAlways {
+                print("Already authorized — starting region monitoring")
+                locationManager.startMonitoringRegion()
+            } else {
+                print("Not authorized yet — requesting permission")
                 locationManager.request()
-            })
-            .font(.headline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(30)
+            }
         }
     }
 }
 
 #Preview {
+    let audioHelper = AlarmAudioHelper()
+    let locationManager = AppLocationManager(audioHelper: audioHelper)
+    
     LocationView()
+        .environmentObject(locationManager)
+        .environmentObject(audioHelper)
 }

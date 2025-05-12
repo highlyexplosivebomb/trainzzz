@@ -67,6 +67,10 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
     public func request() {
         locationManager.requestAlwaysAuthorization()
     }
+    
+    public func getCurrentLocation() -> CLLocationCoordinate2D? {
+        return locationManager.location?.coordinate // note the location can be null if there is no location avaliable yet
+    }
 
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         guard region.identifier == "TargetRegion" else { return }

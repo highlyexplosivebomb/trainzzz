@@ -10,12 +10,18 @@ import SwiftUI
 
 class SetupViewModel : ObservableObject
 {
-    @Published public var isSetup: Bool = false
+    @AppStorage("isSetupComplete") var isSetupComplete: Bool = false
+
     @Published public var permissionNotGranted = false
-    private var locationManager = SetupLocationManager()
+    
+    private let locationManager: AppLocationManager
+    
+    init(locationManager: AppLocationManager) {
+        self.locationManager = locationManager
+    }
     
     var hasLocationPermissions : Bool {
-            return locationManager.authorisationStatus == .authorizedWhenInUse || locationManager.authorisationStatus == .authorizedAlways
+        return locationManager.authorisationStatus == .authorizedAlways
     }
     
     func request()
@@ -34,7 +40,7 @@ class SetupViewModel : ObservableObject
     {
         if(hasLocationPermissions)
         {
-            isSetup = true
+            isSetupComplete = true
             return true;
         }
         return false;
