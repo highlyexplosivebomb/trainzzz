@@ -43,10 +43,8 @@ struct LocationView: View {
         }
         .onAppear {
             if locationManager.authorisationStatus == .authorizedAlways {
-                print("Already authorized — starting region monitoring")
                 locationManager.startMonitoringRegion()
             } else {
-                print("Not authorized yet — requesting permission")
                 locationManager.request()
             }
         }
