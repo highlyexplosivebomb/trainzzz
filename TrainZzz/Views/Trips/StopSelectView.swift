@@ -23,7 +23,6 @@ struct StopSelectView: View {
 
             TextField("Start typing...", text: $viewModel.searchText)
                 .padding(10)
-                .background(Color(.systemGray6))
                 .cornerRadius(8)
                 .padding(.horizontal)
                 .focused($isFieldFocused)

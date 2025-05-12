@@ -21,15 +21,7 @@ struct TripsView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil, from: nil, for: nil
-                    )
-                }
-            //Elements ordered from bottom to top for overlapping
+            //Order these by back to front
             List(viewModel.tripResults) { trip in
                 VStack(alignment: .leading) {
                     Text("\(trip.originName) → \(trip.destinationName)")
@@ -38,7 +30,12 @@ struct TripsView: View {
                     Text("Arrives: \(trip.arrivalTime)")
                 }
             }
-            .offset(y: 300)
+            .listStyle(PlainListStyle())
+            .background(Color.clear)
+            .scrollContentBackground(.hidden)
+            .offset(y: 150)
+            .frame(height: UIScreen.main.bounds.height - 425)
+            
             Button("Find Trips") {
                 viewModel.fetchTripPlan()
             }
@@ -46,7 +43,8 @@ struct TripsView: View {
             .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(10)
-            .offset(y: 0)
+            .offset(y: -125)
+            
             StopSelectView(selectedStop: $viewModel.toStop, viewModel: toStopVM)
                 .offset(y: 150)
             StopSelectView(selectedStop: $viewModel.fromStop, viewModel: fromStopVM)

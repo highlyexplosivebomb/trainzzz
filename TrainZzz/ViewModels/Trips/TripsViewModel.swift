@@ -26,8 +26,9 @@ class TripsViewModel: ObservableObject {
 
         let rows = lines.dropFirst().filter { !$0.isEmpty }
         var stops: [Stop] = []
+        var seenStopNames: Set<String> = []
 
-        let stationNameRegex = try! NSRegularExpression(pattern: #"^[A-Za-z\s]+ Station, Platform \d+$"#)
+        let stationNameRegex = try! NSRegularExpression(pattern: #"^([A-Za-z\s]+) Station, Platform \d+$"#)
 
         for row in rows {
             var columns = row.components(separatedBy: "\",\"")
@@ -37,25 +38,32 @@ class TripsViewModel: ObservableObject {
             columns[9] = columns[9].trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             columns = columns.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
 
-            let stopName = columns[2]
-            let range = NSRange(location: 0, length: stopName.utf16.count)
-            if stationNameRegex.firstMatch(in: stopName, options: [], range: range) == nil {
-                continue
-            }
+            let stopNameFull = columns[2]
+            let range = NSRange(location: 0, length: stopNameFull.utf16.count)
 
-            let stop = Stop(
-                id: columns[0],
-                stopCode: columns[1],
-                stopName: stopName,
-                stopLat: Double(columns[3]) ?? 0.0,
-                stopLon: Double(columns[4]) ?? 0.0,
-                locationType: columns[5],
-                parentStation: columns[6],
-                wheelchairBoarding: columns[7],
-                levelId: columns[8],
-                platformCode: columns[9]
-            )
-            stops.append(stop)
+            if let match = stationNameRegex.firstMatch(in: stopNameFull, options: [], range: range),
+               let stationRange = Range(match.range(at: 1), in: stopNameFull) {
+                let trimmedStopName = "\(stopNameFull[stationRange]) Station"
+
+                if seenStopNames.contains(trimmedStopName) {
+                    continue
+                }
+                seenStopNames.insert(trimmedStopName)
+
+                let stop = Stop(
+                    id: columns[0],
+                    stopCode: columns[1],
+                    stopName: trimmedStopName,
+                    stopLat: Double(columns[3]) ?? 0.0,
+                    stopLon: Double(columns[4]) ?? 0.0,
+                    locationType: columns[5],
+                    parentStation: columns[6],
+                    wheelchairBoarding: columns[7],
+                    levelId: columns[8],
+                    platformCode: columns[9]
+                )
+                stops.append(stop)
+            }
         }
         return stops
     }
@@ -112,13 +120,25 @@ class TripsViewModel: ObservableObject {
                         let leg = legs.first,
                         let origin = leg["origin"] as? [String: Any],
                         let destination = leg["destination"] as? [String: Any],
-                        let originName = origin["name"] as? String,
-                        let destName = destination["name"] as? String,
-                        let depTime = origin["departureTimePlanned"] as? String,
-                        let arrTime = destination["arrivalTimePlanned"] as? String
+                        let originParent = origin["parent"] as? [String: Any],
+                        let originName = originParent["disassembledName"] as? String,
+                        let destParent = destination["parent"] as? [String: Any],
+                        let destName = destParent["disassembledName"] as? String,
+                        let depTimeStr = origin["departureTimePlanned"] as? String,
+                        let arrTimeStr = destination["arrivalTimePlanned"] as? String
                     else {
                         return nil
                     }
+
+                    let isoFormatter = ISO8601DateFormatter()
+                    isoFormatter.formatOptions = [.withInternetDateTime]
+
+                    let outputFormatter = DateFormatter()
+                    outputFormatter.dateFormat = "HH:mm"
+                    outputFormatter.timeZone = TimeZone.current
+
+                    let depTime = isoFormatter.date(from: depTimeStr).map { outputFormatter.string(from: $0) } ?? depTimeStr
+                    let arrTime = isoFormatter.date(from: arrTimeStr).map { outputFormatter.string(from: $0) } ?? arrTimeStr
 
                     return TripSummary(
                         originName: originName,
