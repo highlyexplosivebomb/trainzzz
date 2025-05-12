@@ -72,8 +72,8 @@ struct NearMeView: View {
                         if let facilities = viewModel.getStationByTSN(tsn: tsn) {
                             let matchedFilters = filters.filter { filter in
                                 facilities.facilities.contains(filter) || facilities.accessibility.contains(filter)
-                            }.count
-                            if matchedFilters == filters.count {
+                            }
+                            if matchedFilters.count == filters.count {
                                 Station(isClicked: $isClicked, selectedStation: $selectedStation, station: station, distance: distance)
                             }
                         }
