@@ -50,6 +50,7 @@ struct TripsView: View {
             StopSelectView(selectedStop: $viewModel.fromStop, viewModel: fromStopVM)
                 .offset(y: 50)
         }
+        .ignoresSafeArea(.keyboard)
     }
 }
 
