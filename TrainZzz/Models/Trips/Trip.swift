@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TripSummary: Identifiable {
+struct Trip: Identifiable {
     let id = UUID()
     let originName: String
     let destinationName: String
