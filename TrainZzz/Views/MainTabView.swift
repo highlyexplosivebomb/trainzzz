@@ -16,11 +16,13 @@ struct MainTabView: View {
                     Text("Trips")
                 }
             
-            AlarmConfigView()
-                .tabItem {
-                    Image(systemName: "alarm")
-                    Text("Alarm")
-                }
+            NavigationStack {
+                AlarmConfigView()
+            }
+            .tabItem {
+                Image(systemName: "alarm")
+                Text("Alarm")
+            }
             
             NearMeView()
                 .tabItem {
