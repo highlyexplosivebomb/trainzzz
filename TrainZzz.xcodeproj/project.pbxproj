@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D2DAA5CA2DD2043D000C3675 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = D2DAA5C92DD2043D000C3675 /* SwiftProtobuf */; };
+		D2DAA5CC2DD2043D000C3675 /* SwiftProtobufPluginLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = D2DAA5CB2DD2043D000C3675 /* SwiftProtobufPluginLibrary */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D28183812DC8E78C009F764D /* TrainZzz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrainZzz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2DAA5CC2DD2043D000C3675 /* SwiftProtobufPluginLibrary in Frameworks */,
+				D2DAA5CA2DD2043D000C3675 /* SwiftProtobuf in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = TrainZzz;
 			packageProductDependencies = (
+				D2DAA5C92DD2043D000C3675 /* SwiftProtobuf */,
+				D2DAA5CB2DD2043D000C3675 /* SwiftProtobufPluginLibrary */,
 			);
 			productName = TrainZzz;
 			productReference = D28183812DC8E78C009F764D /* TrainZzz.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = D28183782DC8E78C009F764D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D2DAA5C82DD2043D000C3675 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D28183822DC8E78C009F764D /* Products */;
 			projectDirPath = "";
@@ -347,6 +359,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D2DAA5C82DD2043D000C3675 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.29.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D2DAA5C92DD2043D000C3675 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D2DAA5C82DD2043D000C3675 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		D2DAA5CB2DD2043D000C3675 /* SwiftProtobufPluginLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D2DAA5C82DD2043D000C3675 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobufPluginLibrary;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D28183792DC8E78C009F764D /* Project object */;
 }
