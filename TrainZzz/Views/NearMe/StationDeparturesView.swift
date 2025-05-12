@@ -10,9 +10,11 @@ import MapKit
 
 struct StationDeparturesView: View {
     @StateObject var viewModel = StationDeparturesViewModel()
-    @State private var isClicked = false
     @State private var selectedOption = "Info"
     @Binding var selectedStation: StationData
+    @State private var isExpanded = false
+    @State private var isClicked = false
+    @State private var selectedTrip = ""
 
     var body: some View {
         VStack() {
@@ -49,6 +51,10 @@ struct StationDeparturesView: View {
                 Picker("Options", selection: $selectedOption) {
                     Text("Info").tag("Info")
                     Text("Departures").tag("Departures")
+                    
+                    if isExpanded {
+                        Text("Live").tag("Live")
+                    }
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
@@ -62,14 +68,24 @@ struct StationDeparturesView: View {
                         InfoView(station: station)
                     }
                 } else if selectedOption == "Departures" {
-                    DeparturesView()
+                    let tsn = Int(selectedStation.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+                    if let station = viewModel.getStationByTSN(tsn: tsn) {
+                        DeparturesView(isExpanded: $isExpanded, isClicked: $isClicked, selectedTrip: $selectedTrip, stationDepartures: viewModel.departures, stationName: station.name)
+                    }
+                } else if selectedOption == "Live" {
+                    Live(selectedTrip: $selectedTrip)
                 }
+            }.onChange(of: isClicked) {
+                selectedOption = "Live"
+                isClicked = false
             }
             
             Spacer()
         }
         .onAppear {
             viewModel.fetchFacilities()
+            let tsn = Int(selectedStation.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+            viewModel.fetchDepartures(tsn: tsn)
         }
     }
 }
@@ -137,20 +153,24 @@ struct InfoView: View {
 }
 
 struct DeparturesView: View {
+    @Binding var isExpanded: Bool
+    @Binding var isClicked: Bool
+    @Binding var selectedTrip: String
+    let stationDepartures: [StopEvent]
+    let stationName: String
     var body: some View {
-        HStack {
-            Image("T1Icon")
-                .resizable()
-                .scaledToFit()
-                .frame(maxHeight: 30)
+        ScrollView {
+            if stationDepartures.isEmpty {
+                Text("No departures today!")
+            }
             
-            Spacer()
+            VStack {
+                ForEach(stationDepartures, id: \.properties?.RealtimeTripId) { departure in
+                    Departure(isExpanded: $isExpanded, isClicked: $isClicked, selectedTrip: $selectedTrip, selectedDeparture: departure, stationName: stationName)
+                }
+            }
+            .frame(maxWidth: .infinity)
         }
-        .padding(.horizontal)
-        
-        Divider()
-        
-        Text("No upcoming departures within the next 24 hrs.")
     }
 }
 
@@ -164,5 +184,63 @@ struct FacilityInfo: View {
             Text(facility)
             Spacer()
         }
+    }
+}
+
+struct Departure: View {
+    @Binding var isExpanded: Bool
+    @Binding var isClicked: Bool
+    @Binding var selectedTrip: String
+    let selectedDeparture: StopEvent
+    let stationName: String
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text(ISOToAEST(isoString: selectedDeparture.departureTimePlanned))
+                    .font(.system(size: 30, weight: .bold))
+                Spacer()
+                Image("\(selectedDeparture.transportation.disassembledName)Icon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .shadow(radius: 3)
+            }
+            HStack {
+                Text(selectedDeparture.transportation.destination.name)
+                Spacer()
+                Text(selectedDeparture.location.parent.disassembledName.replacingOccurrences(of: "\(stationName), ", with: ""))
+            }
+            Divider()
+            Button(action: {
+                isExpanded = true
+                isClicked = true
+                selectedTrip = selectedDeparture.properties?.RealtimeTripId ?? ""
+            }) {
+                Text("View Live!")
+            }
+        }
+        .padding(.horizontal)
+    }
+    
+    func ISOToAEST(isoString: String) -> String {
+        let isoFormatter = ISO8601DateFormatter()
+        guard let date = isoFormatter.date(from: isoString) else {
+            return ""
+        }
+
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(identifier: "Australia/Sydney")
+        formatter.dateFormat = "h:mm a"
+        
+        return formatter.string(from: date)
+    }
+}
+
+struct Live : View {
+    @Binding var selectedTrip: String
+    
+    var body: some View {
+        Text(selectedTrip)
     }
 }

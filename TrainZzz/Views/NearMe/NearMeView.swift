@@ -14,6 +14,7 @@ struct NearMeView: View {
     @StateObject var viewModel = StationDeparturesViewModel()
     @State private var isClicked = false
     @State private var selectedStation: StationData = StationData(id: "", name: "", type: "", coord: [], properties: nil)
+    @State private var filters: [String] = []
     let initialPosition: MapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500))
 
     var body: some View {
@@ -49,15 +50,8 @@ struct NearMeView: View {
             .frame(height: UIScreen.main.bounds.height / 2.25)
 
             HStack {
-                FilterButton(icon: "T1Icon")
-                FilterButton(icon: "T2Icon")
-                FilterButton(icon: "T3Icon")
-                FilterButton(icon: "T4Icon")
-                FilterButton(icon: "T5Icon")
-                FilterButton(icon: "T6Icon")
-                FilterButton(icon: "T7Icon")
-                FilterButton(icon: "T8Icon")
-                FilterButton(icon: "T9Icon")
+                FilterButton(filters: $filters, icon: "toilet", text: "Toilets", filter: "Toilets")
+                FilterButton(filters: $filters, icon: "figure.roll", text: "Accessible", filter: "Independent Access")
             }
             .padding(.horizontal)
             
@@ -74,7 +68,16 @@ struct NearMeView: View {
                         let currentLocation = CLLocation(latitude: -33.8688, longitude: 151.2093)
                         let distance = stationLocation.distance(from: currentLocation)
                         
-                        Station(isClicked: $isClicked, selectedStation: $selectedStation, station: station, distance: distance)
+                        let tsn = Int(station.properties?.STOP_GLOBAL_ID ?? "0") ?? 0
+                        if let facilities = viewModel.getStationByTSN(tsn: tsn) {
+                            let matchedFilters = filters.filter { filter in
+                                facilities.facilities.contains(filter) || facilities.accessibility.contains(filter)
+                            }.count
+                            if matchedFilters == filters.count {
+                                Station(isClicked: $isClicked, selectedStation: $selectedStation, station: station, distance: distance)
+                            }
+                        }
+
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -95,19 +98,32 @@ struct NearMeView: View {
 struct FilterButton: View {
     @State private var isActive: Bool = false
     @State private var buttonColor: Color = Color(.systemGray5)
+    @Binding var filters: [String]
     
     let icon: String
+    let text: String
+    let filter: String
     
     var body: some View {
         Button(action: {
             buttonColor = isActive ? Color(.systemGray5) : .mint
             isActive = isActive ? false : true
+            
+            if isActive {
+                filters.append(filter)
+            } else {
+                filters.removeAll { $0 == filter }
+            }
         }) {
-            Image(icon)
-                .resizable()
-                .scaledToFit()
+            HStack {
+                Image(systemName: icon)
+                    .resizable()
+                    .scaledToFit()
+                    
+                Text(text)
+            }.frame(maxHeight: 25, alignment: .leading)
         }
-        .padding(3)
+        .padding(6)
         .background(buttonColor)
         .cornerRadius(5)
         .foregroundColor(Color.black)
