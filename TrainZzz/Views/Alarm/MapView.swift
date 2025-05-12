@@ -9,15 +9,15 @@ import SwiftUI
 import MapKit
 
 struct MapView: View {
-    @Binding var coordinate: CLLocationCoordinate2D
+    let coordinate: CLLocationCoordinate2D
 
     @State private var position: MapCameraPosition
 
-    init(coordinate: Binding<CLLocationCoordinate2D>) {
-        self._coordinate = coordinate
-        self._position = State(initialValue: .region(
+    init(coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+        _position = State(initialValue: .region(
             MKCoordinateRegion(
-                center: coordinate.wrappedValue,
+                center: coordinate,
                 span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
             )
         ))
@@ -30,4 +30,10 @@ struct MapView: View {
         .shadow(radius: 4)
         .padding()
     }
+}
+
+
+#Preview {
+    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
+    MapView(coordinate: coordinate)
 }
