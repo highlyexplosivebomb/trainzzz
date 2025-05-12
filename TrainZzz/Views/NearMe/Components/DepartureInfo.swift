@@ -21,11 +21,15 @@ struct DepartureInfo: View {
                 Text(ISOToAEST(isoString: selectedDeparture.departureTimePlanned))
                     .font(.system(size: 30, weight: .bold))
                 Spacer()
-                Image("\(selectedDeparture.transportation.disassembledName)Icon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .shadow(radius: 3)
+                
+                let availableIcons: Set<String> = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9"]
+                if availableIcons.contains(selectedDeparture.transportation.disassembledName) {
+                    Image("\(selectedDeparture.transportation.disassembledName)Icon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .shadow(radius: 3)
+                }
             }
             
             HStack {
