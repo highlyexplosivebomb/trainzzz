@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NavigationView: View {
+struct MainTabView: View {
     var body: some View {
         TabView {
             TripsView()
@@ -16,7 +16,7 @@ struct NavigationView: View {
                     Text("Trips")
                 }
             
-            AlarmView()
+            AlarmConfigView()
                 .tabItem {
                     Image(systemName: "alarm")
                     Text("Alarm")
@@ -32,5 +32,5 @@ struct NavigationView: View {
 }
 
 #Preview {
-    NavigationView()
+    MainTabView()
 }
