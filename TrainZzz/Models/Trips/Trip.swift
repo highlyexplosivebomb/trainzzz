@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Trip: Identifiable {
+struct Trip: Identifiable, Hashable {
     let id = UUID()
     let originName: String
     let destinationName: String

@@ -99,7 +99,7 @@ class TripsViewModel: ObservableObject {
                         destinationName: destName,
                         departureTime: depTime,
                         arrivalTime: arrTime,
-                        legs: []
+                        legs: legList
                     )
                 }
 
@@ -121,13 +121,11 @@ extension TripsViewModel {
 
         for leg in legs {
             guard let legOrigin = leg["origin"] as? [String: Any],
-                  let legOriginParent = legOrigin["origin"] as? [String: Any],
                   let legDestination = leg["destination"] as? [String: Any],
-                  let legDestinationParent = legDestination["destination"] as? [String: Any],
-                  let legOriginName = legOriginParent["disassembledName"] as? String,
-                  let legDestinationName = legDestinationParent["disassembledName"] as? String,
+                  let legOriginName = legOrigin["disassembledName"] as? String,
+                  let legDestinationName = legDestination["disassembledName"] as? String,
                   let legDepTimeStr = legOrigin["departureTimePlanned"] as? String,
-                  let legArrTimeStr = legDestination["departureTimePlanned"] as? String
+                  let legArrTimeStr = legDestination["arrivalTimePlanned"] as? String
             else {
                 continue
             }

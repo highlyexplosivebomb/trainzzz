@@ -1,6 +1,6 @@
 import Foundation
 
-struct TripSummary: Identifiable {
+struct TripSummary: Identifiable, Hashable {
     let id = UUID()
     let originName: String
     let destinationName: String
