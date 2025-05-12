@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 class TripsViewModel: ObservableObject {
     @Published var fromStop: Stop? = nil
     @Published var toStop: Stop? = nil
@@ -117,9 +116,10 @@ class TripsViewModel: ObservableObject {
                 let trips = ((json?["journeys"] as? [[String: Any]]) ?? []).compactMap { journeyDict -> TripSummary? in
                     guard
                         let legs = journeyDict["legs"] as? [[String: Any]],
-                        let leg = legs.first,
-                        let origin = leg["origin"] as? [String: Any],
-                        let destination = leg["destination"] as? [String: Any],
+                        let firstLeg = legs.first,
+                        let finalLeg = legs.last,
+                        let origin = firstLeg["origin"] as? [String: Any],
+                        let destination = finalLeg["destination"] as? [String: Any],
                         let originParent = origin["parent"] as? [String: Any],
                         let originName = originParent["disassembledName"] as? String,
                         let destParent = destination["parent"] as? [String: Any],
@@ -139,12 +139,15 @@ class TripsViewModel: ObservableObject {
 
                     let depTime = isoFormatter.date(from: depTimeStr).map { outputFormatter.string(from: $0) } ?? depTimeStr
                     let arrTime = isoFormatter.date(from: arrTimeStr).map { outputFormatter.string(from: $0) } ?? arrTimeStr
+                    
+                    let legList = TripsViewModel.populateLegs(legs: legs)
 
                     return TripSummary(
                         originName: originName,
                         destinationName: destName,
                         departureTime: depTime,
-                        arrivalTime: arrTime
+                        arrivalTime: arrTime,
+                        legs: []
                     )
                 }
 
@@ -159,3 +162,44 @@ class TripsViewModel: ObservableObject {
         }.resume()
     }
 }
+
+extension TripsViewModel {
+    nonisolated static func populateLegs(legs: [[String: Any]]) -> [Trip] {
+        var legList: [Trip] = []
+
+        for leg in legs {
+            guard let legOrigin = leg["origin"] as? [String: Any],
+                  let legOriginParent = legOrigin["origin"] as? [String: Any],
+                  let legDestination = leg["destination"] as? [String: Any],
+                  let legDestinationParent = legDestination["destination"] as? [String: Any],
+                  let legOriginName = legOriginParent["disassembledName"] as? String,
+                  let legDestinationName = legDestinationParent["disassembledName"] as? String,
+                  let legDepTimeStr = legOrigin["departureTimePlanned"] as? String,
+                  let legArrTimeStr = legDestination["departureTimePlanned"] as? String
+            else {
+                continue
+            }
+
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime]
+
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateFormat = "HH:mm"
+            outputFormatter.timeZone = TimeZone.current
+
+            let legDepTime = isoFormatter.date(from: legDepTimeStr).map { outputFormatter.string(from: $0) } ?? legDepTimeStr
+            let arrTime = isoFormatter.date(from: legArrTimeStr).map { outputFormatter.string(from: $0) } ?? legArrTimeStr
+
+            let newLeg = Trip(
+                originName: legOriginName,
+                destinationName: legDestinationName,
+                departureTime: legDepTime,
+                arrivalTime: arrTime
+            )
+            legList.append(newLeg)
+        }
+
+        return legList
+    }
+}
+
