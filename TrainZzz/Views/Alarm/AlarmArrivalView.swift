@@ -8,11 +8,52 @@
 import SwiftUI
 
 struct AlarmArrivalView: View {
+    @EnvironmentObject var audioHelper: AlarmAudioHelper
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            GIFView()
+                .padding()
+                .frame(maxHeight: 300)
+            
+            Text("You've Arrived!")
+                .font(.largeTitle)
+                .bold()
+                .padding()
+            
+            VStack {
+                Button("Stop Alarm", action: {
+                    audioHelper.stopAlarmSound()
+                })
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(20)
+                .padding(.horizontal)
+                
+                NavigationLink(destination: AlarmConfigView()) {
+                    Text("Create Another Alarm")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                }
+                .cornerRadius(20)
+                .padding()
+            }
+            .padding(.vertical)
+        }
     }
 }
 
 #Preview {
-    AlarmArrivalView()
+    let audioHelper = AlarmAudioHelper()
+    
+    return AlarmArrivalView()
+        .environmentObject(audioHelper)
 }
