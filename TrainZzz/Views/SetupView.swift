@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SetupView: View {
-    @StateObject private var viewModel = SetupViewModel()
+    @ObservedObject var viewModel: SetupViewModel
 
     var body: some View {
         NavigationStack {
@@ -20,6 +20,7 @@ struct SetupView: View {
                 
                 Text("Let's get you set up.")
                     .font(.largeTitle)
+                    .foregroundColor(.black)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
@@ -51,7 +52,7 @@ struct SetupView: View {
                             .padding(.horizontal, 80)
                     }
                     .padding(.bottom)
-                    Text("Location permissions must be given for app to function")
+                    Text("Location permissions must be granted for app to function. If this was denied, go into settings and change it to always.")
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color(red: 1.0, green: 0.0, blue: 0.1))
                         .opacity(viewModel.permissionNotGranted ? 1 : 0)
@@ -63,8 +64,8 @@ struct SetupView: View {
             .onAppear {
                 _ = viewModel.checkForExistingPermissions()
             }
-            .navigationDestination(isPresented: $viewModel.isSetup) {
-                NavigationView().navigationBarBackButtonHidden(true) // Replace with your real destination view
+            .navigationDestination(isPresented: $viewModel.isSetupComplete) {
+                NavigationView().navigationBarBackButtonHidden(true)
             }
         }
     }
@@ -72,5 +73,11 @@ struct SetupView: View {
 
 
 #Preview {
-    SetupView()
+    let audioHelper = AlarmAudioHelper()
+    let locationManager = AppLocationManager(audioHelper: audioHelper)
+    let viewModel = SetupViewModel(locationManager: locationManager)
+
+    return SetupView(viewModel: viewModel)
+        .environmentObject(locationManager)
+        .environmentObject(audioHelper)
 }
