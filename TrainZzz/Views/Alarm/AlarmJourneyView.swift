@@ -84,12 +84,10 @@ struct AlarmJourneyView: View {
             }
         }
         .onDisappear {
-            print("View destroying...")
             alarmJourneyViewModel.onDestroyed()
         }
         .onReceive(locationManager.$isInRegion) { newValue in
             if newValue {
-                print("navigating to arrival...")
                 navigationPath.append(AlarmRoute.arrival)
             }
         }

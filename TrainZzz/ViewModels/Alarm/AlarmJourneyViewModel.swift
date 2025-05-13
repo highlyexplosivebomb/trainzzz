@@ -36,7 +36,6 @@ class AlarmJourneyViewModel: ObservableObject {
     }
     
     func tick() {
-        print("tick")
         guard let newLocation = locationManager?.getCurrentLocation() else { return }
         currentLocation = newLocation
         distanceFromDestination = calculateDistanceToDestinationString(currentLocation: currentLocation)
