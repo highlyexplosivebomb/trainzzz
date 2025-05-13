@@ -11,12 +11,13 @@ import SwiftUI
 class SetupViewModel : ObservableObject
 {
     @Published public var permissionNotGranted = false
-    @Published public var isSetupComplete = false
+    @Published public var isSetupComplete = true
     
     private let locationManager: AppLocationManager
     
     init(locationManager: AppLocationManager) {
         self.locationManager = locationManager
+        isSetupComplete = hasLocationPermissions
     }
     
     var hasLocationPermissions : Bool {
