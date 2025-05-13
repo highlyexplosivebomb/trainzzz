@@ -5,7 +5,6 @@
 //  Created by Lachlan Giang on 10/5/2025.
 //
 
-import Combine
 import SwiftUI
 
 struct StopSelectView: View {
@@ -13,31 +12,43 @@ struct StopSelectView: View {
     @StateObject var viewModel: StopViewModel
 
     @FocusState private var isFieldFocused: Bool
-    @State private var isDropdownVisible = false
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Search for a Station")
-                .font(.headline)
-                .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Select a Stop")
+                .font(.title3)
+                .fontWeight(.semibold)
 
             TextField("Start typing...", text: $viewModel.searchText)
                 .padding(10)
+                .background(Color(.systemGray6))
                 .cornerRadius(8)
-                .padding(.horizontal)
                 .focused($isFieldFocused)
 
-            Spacer()
-        }
-        .animation(.easeInOut, value: isFieldFocused)
-        .overlay(alignment: .top) {
-            if !viewModel.stops.isEmpty && isFieldFocused {
-                StopDropdownList(stops: viewModel.stops) { stop in
-                    selectedStop = stop
-                    viewModel.searchText = stop.stopName
-                    isFieldFocused = false
+            ZStack(alignment: .topLeading) {
+                if !viewModel.stops.isEmpty && isFieldFocused {
+                    DestinationDropdownListView(stops: viewModel.stops) { stop in
+                        viewModel.searchText = stop.stopName
+                        selectedStop = stop
+                        isFieldFocused = false
+                    }
+                    .background(colorScheme == .dark ? Color(.darkGray) : Color.white)
+                    .cornerRadius(12)
+                    .shadow(radius: 5)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .zIndex(100)
                 }
             }
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(colorScheme == .dark ? Color(.darkGray) : Color.white)
+                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
+        )
+        .padding(.horizontal)
+        .zIndex(99)
+        .animation(.easeInOut, value: isFieldFocused)
     }
 }
