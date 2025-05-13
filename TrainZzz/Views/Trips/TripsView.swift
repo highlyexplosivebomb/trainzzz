@@ -36,21 +36,21 @@ struct TripsView: View {
 
                     if !viewModel.tripResults.isEmpty {
                         ScrollView {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.tripResults, id: \.self) { trip in
-                                    NavigationLink(destination: RouteView(trip: trip)) {
-                                        VStack(alignment: .leading) {
-                                            Text("\(trip.originName) → \(trip.destinationName)")
-                                                .font(.headline)
-                                            Text("\(trip.departureTime) - \(trip.arrivalTime)")
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        }
-                                        .padding(.vertical, 8)
+                            List(viewModel.tripResults, id: \.self) { trip in
+                                NavigationLink(destination: RouteView(trip: trip)) {
+                                    VStack(alignment: .leading) {
+                                        Text("\(trip.originName) → \(trip.destinationName)")
+                                            .font(.headline)
+                                        Text("\(trip.departureTime) - \(trip.arrivalTime)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
                                     }
-                                    Divider()
                                 }
                             }
+                            .listStyle(PlainListStyle())
+                            .background(Color.clear)
+                            .scrollContentBackground(.hidden)
+                            .frame(height: UIScreen.main.bounds.height - 425)
                         }
                     }
                     Spacer()
