@@ -76,7 +76,7 @@ struct AlarmConfigView: View {
             if let destination = alarmConfigViewModel.destination {
                 let coordinate = CLLocationCoordinate2D(latitude: destination.stopLat, longitude: destination.stopLon)
 
-                NavigationLink(destination: LocationView(
+                NavigationLink(destination: AlarmJourneyView(
                     targetCoordinates: coordinate,
                     targetRadius: alarmConfigViewModel.alarmRadius,
                     destination: destination.stopName
