@@ -26,15 +26,15 @@ struct AlarmView: View {
                 }
                 .navigationTitle("Train Stations")
                 
-                NavigationLink(destination: LocationView()) {
-                    Text("Start Location View")
-                        .font(.headline)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(30)
-                }
-                .padding()
+//                NavigationLink(destination: LocationView()) {
+//                    Text("Start Location View")
+//                        .font(.headline)
+//                        .padding()
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(30)
+//                }
+//                .padding()
             }
         }
         .onAppear {

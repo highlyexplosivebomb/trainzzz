@@ -37,7 +37,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         print("Authorisation changed: \(status.rawValue)")
     }
 
-    public func startMonitoringRegion() {
+    public func startMonitoringRegion(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance) {
         // Clear the TargetRegion region
         for region in locationManager.monitoredRegions {
             if let circular = region as? CLCircularRegion, circular.identifier == "TargetRegion" {
@@ -48,7 +48,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         
         // Start monitoring the new region
         if CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
-            let region = CLCircularRegion(center: targetCoordinate, radius: radius, identifier: "TargetRegion")
+            let region = CLCircularRegion(center: targetCoordinates, radius: targetRadius, identifier: "TargetRegion")
             region.notifyOnEntry = true
             region.notifyOnExit = true
             locationManager.startMonitoring(for: region)

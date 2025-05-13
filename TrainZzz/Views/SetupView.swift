@@ -65,7 +65,7 @@ struct SetupView: View {
                 _ = viewModel.checkForExistingPermissions()
             }
             .navigationDestination(isPresented: $viewModel.isSetupComplete) {
-                NavigationView().navigationBarBackButtonHidden(true)
+                MainTabView().navigationBarBackButtonHidden(true)
             }
         }
     }

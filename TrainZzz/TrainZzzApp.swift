@@ -28,7 +28,7 @@ struct TrainZzzApp: App {
                     .environmentObject(locationManager)
                     .environmentObject(alarmAudioHelper)
 
-                NavigationView()
+                MainTabView()
                     .opacity(isSetupComplete ? 1 : 0)
                     .zIndex(isSetupComplete ? 1 : 0)
                     .environmentObject(locationManager)
