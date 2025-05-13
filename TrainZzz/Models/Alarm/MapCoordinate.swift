@@ -5,4 +5,7 @@
 //  Created by Justin Wong on 13/5/2025.
 //
 
-import Foundation
+struct MapCoordinate: Equatable {
+    let latitude: Double
+    let longitude: Double
+}

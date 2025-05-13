@@ -11,40 +11,23 @@ import CoreLocation
 
 struct AlarmJourneyView: View {
     @EnvironmentObject var locationManager: AppLocationManager
-    private let targetCoordinates: CLLocationCoordinate2D
-    private let targetRadius: CLLocationDistance
-    private let heading: String
+    @EnvironmentObject var audioHelper: AlarmAudioHelper
     
-    var distanceToDestination: String {
-        guard let currentLocation = locationManager.getCurrentLocation() else {
-            return "-"
-        }
-        let current = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-        let target = CLLocation(latitude: targetCoordinates.latitude, longitude: targetCoordinates.longitude)
-        let distance = current.distance(from: target)
-        
-        if distance >= 1000 {
-            return String(format: "%.1f km", distance / 1000)
-        } else {
-            return "\(Int(distance)) m"
-        }
-    }
+    @StateObject private var alarmJourneyViewModel: AlarmJourneyViewModel
     
     init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String) {
-        self.targetCoordinates = targetCoordinates
-        self.targetRadius = targetRadius
-        self.heading = "My Current Trip to \(destination)"
+        _alarmJourneyViewModel = StateObject(wrappedValue: AlarmJourneyViewModel(
+            currentLocation: CLLocationCoordinate2D(latitude: 0, longitude: 0),
+            targetCoordinates: targetCoordinates,
+            targetRadius: targetRadius,
+            destinationName: destination
+        ))
     }
     
     var body: some View {
         VStack {
-            Color(locationManager.isInRegion ? .green : .red)
-                .edgesIgnoringSafeArea(.all)
-                .animation(.easeInOut, value: locationManager.isInRegion)
-                .navigationBarBackButtonHidden(true) // this will hide the back button
-            
             VStack(alignment: .leading, spacing: 15) {
-                Text(heading)
+                Text(alarmJourneyViewModel.heading)
                     .font(.largeTitle)
                     .bold()
                     .padding(.top)
@@ -53,38 +36,38 @@ struct AlarmJourneyView: View {
             .padding(.horizontal, 15)
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            MapView(coordinate: locationManager.getCurrentLocation()!)
+            MapView(coordinate: alarmJourneyViewModel.currentLocation)
             
             VStack(alignment: .leading, spacing: 15) {
                 Text("Nearest Station")
                     .font(.title2)
                     .bold()
                 
-                Text("Strathfield Station")
+                Text(alarmJourneyViewModel.nearestStation)
                     .font(.title2)
                 
                 Text("Distance to Destination")
                     .font(.title2)
                     .bold()
                 
-                Text(distanceToDestination)
+                Text(alarmJourneyViewModel.distanceFromDestination)
                     .font(.title2)
             }
             .padding(.horizontal, 15)
             .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack {
-                Button("Start Alarm", action: {
-                    locationManager.playAlarmSound()
+                Button("Terminate Alarm", action: {
+                    alarmJourneyViewModel.stopRegionMonitoring()
                 })
                 .font(.headline)
                 .padding()
-                .background(Color.blue)
+                .background(Color.red)
                 .foregroundColor(.white)
                 .cornerRadius(30)
             
                 Button("Stop Alarm", action: {
-                    locationManager.stopAlarmSound()
+                    audioHelper.stopAlarmSound()
                 })
                 .font(.headline)
                 .padding()
@@ -94,12 +77,18 @@ struct AlarmJourneyView: View {
             }
             .padding(.vertical)
         }
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             if locationManager.authorisationStatus == .authorizedAlways {
-                locationManager.startMonitoringRegion(targetCoordinates: self.targetCoordinates, targetRadius: self.targetRadius)
+                locationManager.startMonitoringRegion(targetCoordinates: alarmJourneyViewModel.targetCoordinates, targetRadius: alarmJourneyViewModel.targetRadius)
+                alarmJourneyViewModel.getAndSetLocationManager(manager: locationManager)
             } else {
                 locationManager.request()
             }
+        }
+        .onDisappear {
+            alarmJourneyViewModel.onDestroyed()
+            audioHelper.stopAlarmSound()
         }
     }
 }
