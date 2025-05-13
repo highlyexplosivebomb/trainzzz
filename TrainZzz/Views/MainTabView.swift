@@ -10,7 +10,7 @@ import SwiftUI
 struct MainTabView: View {
     var body: some View {
         TabView {
-            TripsView()
+            MainTripsView()
                 .tabItem {
                     Image(systemName: "train.side.front.car")
                     Text("Trips")

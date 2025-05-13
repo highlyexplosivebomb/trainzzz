@@ -19,7 +19,7 @@ struct FilterButton: View {
     var body: some View {
         Button(action: {
             buttonColor = isActive ? Color(.systemGray5) : .mint
-            isActive = isActive ? false : true
+            isActive.toggle()
             switch isActive {
             case true:
                 filters.append(filter)

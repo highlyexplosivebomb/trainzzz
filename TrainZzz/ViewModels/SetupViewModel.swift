@@ -10,14 +10,14 @@ import SwiftUI
 
 class SetupViewModel : ObservableObject
 {
-    @AppStorage("isSetupComplete") var isSetupComplete: Bool = false
-
     @Published public var permissionNotGranted = false
+    @Published public var isSetupComplete = true
     
     private let locationManager: AppLocationManager
     
     init(locationManager: AppLocationManager) {
         self.locationManager = locationManager
+        isSetupComplete = hasLocationPermissions
     }
     
     var hasLocationPermissions : Bool {

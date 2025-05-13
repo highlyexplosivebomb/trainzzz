@@ -11,30 +11,27 @@ import SwiftUI
 struct TrainZzzApp: App {
     @StateObject private var locationManager: AppLocationManager
     @StateObject private var alarmAudioHelper: AlarmAudioHelper
-    @AppStorage("isSetupComplete") private var isSetupComplete: Bool = false
+    @StateObject private var setupViewModel: SetupViewModel
 
     init() {
         let audioHelper = AlarmAudioHelper()
+        let appLocationManager = AppLocationManager(audioHelper: audioHelper)
         _alarmAudioHelper = StateObject(wrappedValue: audioHelper)
-        _locationManager = StateObject(wrappedValue: AppLocationManager(audioHelper: audioHelper))
+        _locationManager = StateObject(wrappedValue: appLocationManager)
+        _setupViewModel = StateObject(wrappedValue: SetupViewModel(locationManager: appLocationManager))
     }
     
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                SetupView(viewModel: SetupViewModel(locationManager: locationManager))
-                    .opacity(isSetupComplete ? 0 : 1)
-                    .zIndex(isSetupComplete ? 0 : 1)
+            if setupViewModel.isSetupComplete {
+                MainTabView()
                     .environmentObject(locationManager)
                     .environmentObject(alarmAudioHelper)
-
-                MainTabView()
-                    .opacity(isSetupComplete ? 1 : 0)
-                    .zIndex(isSetupComplete ? 1 : 0)
+            } else {
+                SetupView(viewModel: setupViewModel)
                     .environmentObject(locationManager)
                     .environmentObject(alarmAudioHelper)
             }
-            .animation(.snappy, value: isSetupComplete)
         }
     }
 }

@@ -38,15 +38,18 @@ struct DepartureInfo: View {
                 Text(selectedDeparture.location.parent.disassembledName.replacingOccurrences(of: "\(stationName), ", with: ""))
             }
             
-            Divider()
-            
-            Button(action: {
-                isExpanded = true
-                isClicked = true
-                selectedTrip = selectedDeparture.properties?.RealtimeTripId ?? ""
-            }) {
-                Text("View Live!")
+            HStack {
+                Button(action: {
+                    isExpanded = true
+                    isClicked = true
+                    selectedTrip = selectedDeparture.properties?.RealtimeTripId ?? ""
+                }) {
+                    Text("> Track")
+                }
+                Spacer()
             }
+
+            Divider()
         }
         .padding(.horizontal)
     }

@@ -15,6 +15,7 @@ struct LivePickerView: View {
     @Binding var timer: Int
     @State private var activeTrip: TransitRealtime_VehiclePosition?
     @State private var cameraPosition: MapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 1000))
+    @State private var isVisible: Bool = true
     
     var body: some View {
         VStack {
@@ -24,13 +25,22 @@ struct LivePickerView: View {
                         TransportModeLogo(isTrain: true, isSmall: true)
                     }
                 }
-                Text("Timer: \(timer)  |  Trip Refreshed: \(activeTrip.timestamp)")
+                
+                Text("🔴  Live, monitoring for updates")
+                    .opacity(isVisible ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.75), value: isVisible)
             } else {
                 Text("No real-time data available for this trip.")
             }
         }
-        .onChange(of: timer) {
+        .onAppear() {
             updateActiveTrip()
+        }
+        .onChange(of: timer) {
+            isVisible.toggle()
+            if (timer % 10 == 0) {
+                updateActiveTrip()
+            }
         }
     }
     
