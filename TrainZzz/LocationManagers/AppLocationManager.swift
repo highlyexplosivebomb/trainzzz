@@ -96,20 +96,23 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             self.audioHelper.playAlarmSound()
         }
     }
-
+    
+    // This creates a background task which will allow the location checking to occur whilst the device is asleep.
     func withBackgroundTask(named name: String, delay: TimeInterval = 5.0, execute: @escaping () -> Void) {
         var taskID: UIBackgroundTaskIdentifier = .invalid
 
+        // This is meant to handle the task if it runs for too long, preventing memory leakes if the task breaks
         let expirationHandler: () -> Void = {
             if taskID != .invalid {
                 UIApplication.shared.endBackgroundTask(taskID)
             }
         }
-
+        
         taskID = UIApplication.shared.beginBackgroundTask(withName: name, expirationHandler: expirationHandler)
 
         execute()
-
+        
+        // Will end the task after 5 seconds as we don't need the full 30 iOS allocates you.
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             if taskID != .invalid {
                 UIApplication.shared.endBackgroundTask(taskID)

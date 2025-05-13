@@ -51,7 +51,7 @@ class StationManager: ObservableObject {
                     return station1.distance(from: current) < station2.distance(from: current)
                 }
                 
-                // This ensures that stations gets updated
+                // This ensures that stations gets updated correctly
                 DispatchQueue.main.async {
                     self.stations = sortedStations
                 }
