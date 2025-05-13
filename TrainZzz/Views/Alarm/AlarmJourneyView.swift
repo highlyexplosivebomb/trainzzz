@@ -10,12 +10,15 @@ import MapKit
 import CoreLocation
 
 struct AlarmJourneyView: View {
+    @Binding var navigationPath: NavigationPath
+    
     @EnvironmentObject var locationManager: AppLocationManager
     @EnvironmentObject var audioHelper: AlarmAudioHelper
     
     @StateObject private var alarmJourneyViewModel: AlarmJourneyViewModel
     
-    init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String) {
+    init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String, navigationPath: Binding<NavigationPath>) {
+        self._navigationPath = navigationPath
         _alarmJourneyViewModel = StateObject(wrappedValue: AlarmJourneyViewModel(
             currentLocation: CLLocationCoordinate2D(latitude: 0, longitude: 0),
             targetCoordinates: targetCoordinates,
@@ -57,17 +60,17 @@ struct AlarmJourneyView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack {
-                NavigationLink(destination: AlarmConfigView()) {
-                    Text("Terminate Alarm")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
+                Button("Terminate Alarm") {
+                    navigationPath.removeLast(navigationPath.count)
                 }
-                .cornerRadius(20)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
                 .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.red)
+                .cornerRadius(20)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -88,12 +91,12 @@ struct AlarmJourneyView: View {
     }
 }
 
-#Preview {
-    let audioHelper = AlarmAudioHelper()
-    let locationManager = AppLocationManager(audioHelper: audioHelper)
-    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
-    
-    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
-        .environmentObject(locationManager)
-        .environmentObject(audioHelper)
-}
+//#Preview {
+//    let audioHelper = AlarmAudioHelper()
+//    let locationManager = AppLocationManager(audioHelper: audioHelper)
+//    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
+//    
+//    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
+//        .environmentObject(locationManager)
+//        .environmentObject(audioHelper)
+//}

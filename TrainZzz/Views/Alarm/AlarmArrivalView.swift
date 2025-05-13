@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AlarmArrivalView: View {
+    @Binding var navigationPath: NavigationPath
+    
     @EnvironmentObject var audioHelper: AlarmAudioHelper
     
     var body: some View {
@@ -34,26 +36,26 @@ struct AlarmArrivalView: View {
                 .cornerRadius(20)
                 .padding(.horizontal)
                 
-                NavigationLink(destination: AlarmConfigView()) {
-                    Text("Create Another Alarm")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
+                Button("Create Another Alarm") {
+                    navigationPath.removeLast(navigationPath.count)
                 }
-                .cornerRadius(20)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
                 .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .cornerRadius(20)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
     }
 }
 
-#Preview {
-    let audioHelper = AlarmAudioHelper()
-    
-    return AlarmArrivalView()
-        .environmentObject(audioHelper)
-}
+//#Preview {
+//    let audioHelper = AlarmAudioHelper()
+//    
+//    return AlarmArrivalView()
+//        .environmentObject(audioHelper)
+//}

@@ -14,7 +14,7 @@ struct MapView: View {
     @State private var position: MapCameraPosition
 
     init(coordinate: CLLocationCoordinate2D) {
-        self.coordinate = MapCoordinate(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        self.coordinate = MapCoordinate(coord: coordinate)
         _position = State(initialValue: .region(
             MKCoordinateRegion(
                 center: coordinate,

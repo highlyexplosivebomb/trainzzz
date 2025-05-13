@@ -8,8 +8,25 @@
 import SwiftUI
 
 struct AlarmRootView: View {
+    @State private var navigationPath = NavigationPath()
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack(path: $navigationPath) {
+            AlarmConfigView(navigationPath: $navigationPath)
+                .navigationDestination(for: AlarmRoute.self) { route in
+                    switch route {
+                    case let .journey(target, radius, name):
+                        AlarmJourneyView(
+                            targetCoordinates: target.asCLLocationCoordinate2D,
+                            targetRadius: radius,
+                            destination: name,
+                            navigationPath: $navigationPath
+                        )
+                    case .arrival:
+                        AlarmArrivalView(navigationPath: $navigationPath)
+                    }
+                }
+        }
     }
 }
 

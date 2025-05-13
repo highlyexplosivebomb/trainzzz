@@ -9,6 +9,8 @@ import SwiftUI
 import CoreLocation
 
 struct AlarmConfigView: View {
+    @Binding var navigationPath: NavigationPath
+    
     @Environment(\.colorScheme) var colorScheme
     
     @StateObject private var alarmConfigViewModel = AlarmConfigViewModel()
@@ -16,7 +18,8 @@ struct AlarmConfigView: View {
 
     @FocusState private var isFieldFocused: Bool
 
-    init() {
+    init(navigationPath: Binding<NavigationPath>) {
+        self._navigationPath = navigationPath
         let alarmConfigVM = AlarmConfigViewModel()
         _alarmConfigViewModel = StateObject(wrappedValue: alarmConfigVM)
         _destinationViewModel = StateObject(wrappedValue: StopViewModel(allStops: alarmConfigVM.allStops))
@@ -78,19 +81,19 @@ struct AlarmConfigView: View {
             if let destination = alarmConfigViewModel.destination {
                 let coordinate = CLLocationCoordinate2D(latitude: destination.stopLat, longitude: destination.stopLon)
 
-                NavigationLink(destination: AlarmJourneyView(
-                    targetCoordinates: coordinate,
-                    targetRadius: alarmConfigViewModel.alarmRadius,
-                    destination: destination.stopName
-                )) {
-                    Text("Start Alarm")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
+                Button("Start Alarm") {
+                    navigationPath.append(AlarmRoute.journey(
+                        target: MapCoordinate(coord: coordinate),
+                        radius: alarmConfigViewModel.alarmRadius,
+                        name: destination.stopName
+                    ))
                 }
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
                 .cornerRadius(20)
                 .padding()
             }
@@ -99,6 +102,6 @@ struct AlarmConfigView: View {
     }
 }
 
-#Preview {
-    AlarmConfigView()
-}
+//#Preview {
+//    AlarmConfigView()
+//}
