@@ -20,42 +20,45 @@ struct TripsView: View {
     }
 
     var body: some View {
-        NavigationStack
-        {
-            ZStack {
-                //Order these by back to front
-                List(viewModel.tripResults, id: \.self) { trip in
-                    NavigationLink(destination: RouteView(trip: trip)) {
-                        VStack(alignment: .leading) {
-                            Text("\(trip.originName) → \(trip.destinationName)")
-                                .font(.headline)
-                            Text("\(trip.departureTime) - \(trip.arrivalTime)")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+        NavigationStack {
+            ScrollView {
+                VStack {
+                    StopSelectView(selectedStop: $viewModel.fromStop, viewModel: fromStopVM)
+                    StopSelectView(selectedStop: $viewModel.toStop, viewModel: toStopVM)
+
+                    Button("Find Trips") {
+                        viewModel.fetchTripPlan()
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+
+                    if !viewModel.tripResults.isEmpty {
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ForEach(viewModel.tripResults, id: \.self) { trip in
+                                    NavigationLink(destination: RouteView(trip: trip)) {
+                                        VStack(alignment: .leading) {
+                                            Text("\(trip.originName) → \(trip.destinationName)")
+                                                .font(.headline)
+                                            Text("\(trip.departureTime) - \(trip.arrivalTime)")
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding(.vertical, 8)
+                                    }
+                                    Divider()
+                                }
+                            }
                         }
                     }
+                    Spacer()
                 }
-                .listStyle(PlainListStyle())
-                .background(Color.clear)
-                .scrollContentBackground(.hidden)
-                .offset(y: 150)
-                .frame(height: UIScreen.main.bounds.height - 425)
-                
-                Button("Find Trips") {
-                    viewModel.fetchTripPlan()
-                }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .offset(y: -125)
-                
-                StopSelectView(selectedStop: $viewModel.toStop, viewModel: toStopVM)
-                    .offset(y: 150)
-                StopSelectView(selectedStop: $viewModel.fromStop, viewModel: fromStopVM)
-                    .offset(y: 50)
+                .padding(.vertical)
+                .ignoresSafeArea(.keyboard)
             }
-            .ignoresSafeArea(.keyboard)
+
         }
     }
 }
