@@ -47,7 +47,6 @@ class TripsViewModel: ObservableObject {
             print("Invalid URL")
             return
         }
-        print("Calling: \(components.url?.absoluteString ?? "Invalid URL")")
 
         var request = URLRequest(url: url)
         request.setValue("apikey eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI3bnVialJIeGFFVERSMTYzelhoNXpiMzlJS0ZDbE0wSnZsSFk3SW1hWDF3IiwiaWF0IjoxNzQ2OTUzMzA0fQ._JZ7-gUTvV2pZlJb212c5pdQwVI2mb_MPRLtIJ-F5D4", forHTTPHeaderField: "Authorization")
