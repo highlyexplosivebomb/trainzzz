@@ -28,7 +28,7 @@ class StopViewModel : ObservableObject
     }
 
     func buildIndex() {
-        // Create an index based on the first 5 characters of the stopName
+        // Create an index based on the first 3 characters of the stopName
         for stop in allStops {
             let key = stop.stopName.prefix(3).lowercased()
             stopNameIndex[key, default: []].append(stop)

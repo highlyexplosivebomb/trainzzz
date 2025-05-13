@@ -28,6 +28,7 @@ class TripsViewModel: ObservableObject {
         let baseURL = "https://api.transport.nsw.gov.au/v1/tp/trip"
         var components = URLComponents(string: baseURL)!
 
+        //Get parameters for the api call
         let fromId = from.parentStation
         let toId = to.parentStation
 
@@ -42,6 +43,7 @@ class TripsViewModel: ObservableObject {
             URLQueryItem(name: "itdDateTimeDepArr", value: "dep"),
             URLQueryItem(name: "calcNumberOfTrips", value: "5")
         ]
+
 
         guard let url = components.url else {
             print("Invalid URL")
@@ -61,7 +63,8 @@ class TripsViewModel: ObservableObject {
                 print("No data received")
                 return
             }
-
+            
+            //Populate the Trips received from api call
             do {
                 let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
                 let trips = ((json?["journeys"] as? [[String: Any]]) ?? []).compactMap { journeyDict -> TripSummary? in
