@@ -59,14 +59,10 @@ class AlarmJourneyViewModel: ObservableObject {
         stationManager.fetchStations(currentLocation: currentLocation, radiusInMetres: 2000)
         return stationManager.stations.first?.name ?? "Your nearest station is over 2km away."
     }
-    
-    func stopRegionMonitoring() {
-        locationManager?.stopMonitoringRegion()
-    }
-    
+
     func onDestroyed() {
         timer?.invalidate()
         timer = nil
-        stopRegionMonitoring()
+        locationManager?.stopMonitoringRegion()
     }
 }

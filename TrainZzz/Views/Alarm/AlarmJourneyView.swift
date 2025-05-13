@@ -57,23 +57,17 @@ struct AlarmJourneyView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack {
-                Button("Terminate Alarm", action: {
-                    alarmJourneyViewModel.stopRegionMonitoring()
-                })
-                .font(.headline)
+                NavigationLink(destination: AlarmConfigView()) {
+                    Text("Terminate Alarm")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                }
+                .cornerRadius(20)
                 .padding()
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(30)
-            
-                Button("Stop Alarm", action: {
-                    audioHelper.stopAlarmSound()
-                })
-                .font(.headline)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(30)
             }
             .padding(.vertical)
         }
@@ -87,6 +81,7 @@ struct AlarmJourneyView: View {
             }
         }
         .onDisappear {
+            print("View destroying...")
             alarmJourneyViewModel.onDestroyed()
             audioHelper.stopAlarmSound()
         }
