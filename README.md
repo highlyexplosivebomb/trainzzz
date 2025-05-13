@@ -3,6 +3,6 @@ This is a Trip Planner for trains featuring the ability to trigger an alarm when
 
 Group Members:
 
-Lachlan Giang (LachlanGiang) - Student Number
-John Ly (highlyexplosivebomb) - Student Number
-Justin Wong (Yooshi124) - 25375054
+- Lachlan Giang (LachlanGiang) - Student Number
+- John Ly (highlyexplosivebomb) - Student Number
+- Justin Wong (Yooshi124) - 25375054
