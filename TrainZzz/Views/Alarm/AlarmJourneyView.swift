@@ -86,17 +86,22 @@ struct AlarmJourneyView: View {
         .onDisappear {
             print("View destroying...")
             alarmJourneyViewModel.onDestroyed()
-            audioHelper.stopAlarmSound()
+        }
+        .onReceive(locationManager.$isInRegion) { newValue in
+            if newValue {
+                print("navigating to arrival...")
+                navigationPath.append(AlarmRoute.arrival)
+            }
         }
     }
 }
 
-//#Preview {
-//    let audioHelper = AlarmAudioHelper()
-//    let locationManager = AppLocationManager(audioHelper: audioHelper)
-//    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
-//    
-//    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
-//        .environmentObject(locationManager)
-//        .environmentObject(audioHelper)
-//}
+#Preview {
+    let audioHelper = AlarmAudioHelper()
+    let locationManager = AppLocationManager(audioHelper: audioHelper)
+    let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
+    
+    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station", navigationPath: .constant(NavigationPath()))
+        .environmentObject(locationManager)
+        .environmentObject(audioHelper)
+}

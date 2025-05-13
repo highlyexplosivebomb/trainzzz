@@ -50,12 +50,13 @@ struct AlarmArrivalView: View {
             }
             .padding(.vertical)
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
-//#Preview {
-//    let audioHelper = AlarmAudioHelper()
-//    
-//    return AlarmArrivalView()
-//        .environmentObject(audioHelper)
-//}
+#Preview {
+    let audioHelper = AlarmAudioHelper()
+    
+    return AlarmArrivalView(navigationPath: .constant(NavigationPath()))
+        .environmentObject(audioHelper)
+}

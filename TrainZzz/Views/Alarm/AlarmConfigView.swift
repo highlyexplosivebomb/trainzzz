@@ -102,6 +102,6 @@ struct AlarmConfigView: View {
     }
 }
 
-//#Preview {
-//    AlarmConfigView()
-//}
+#Preview {
+    AlarmConfigView(navigationPath: .constant(NavigationPath()))
+}
