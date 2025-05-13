@@ -1,5 +1,5 @@
 //
-//  GIFView.swift
+//  AlarmGIFView.swift
 //  TrainZzz
 //
 //  Created by Justin Wong on 13/5/2025.
@@ -8,7 +8,7 @@
 import SwiftUI
 import WebKit
 
-struct GIFView: UIViewRepresentable {
+struct AlarmGIFView: UIViewRepresentable {
     let gifName = "alarm_arrival"
     
     func makeUIView(context: Context) -> WKWebView {

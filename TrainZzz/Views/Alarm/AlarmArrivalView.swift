@@ -12,7 +12,7 @@ struct AlarmArrivalView: View {
     
     var body: some View {
         VStack {
-            GIFView()
+            AlarmGIFView()
                 .padding()
                 .frame(maxHeight: 300)
             
