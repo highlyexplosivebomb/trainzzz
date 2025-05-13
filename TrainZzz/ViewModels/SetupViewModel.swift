@@ -10,9 +10,8 @@ import SwiftUI
 
 class SetupViewModel : ObservableObject
 {
-    @AppStorage("isSetupComplete") var isSetupComplete: Bool = false
-
     @Published public var permissionNotGranted = false
+    @Published public var isSetupComplete = false
     
     private let locationManager: AppLocationManager
     
