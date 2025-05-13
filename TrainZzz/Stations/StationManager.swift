@@ -7,14 +7,15 @@
 
 import Foundation
 import Combine
+import CoreLocation
 
 class StationManager: ObservableObject {
     @Published var stations: [StationData] = []
     
-    private let stationUrl = "https://api.transport.nsw.gov.au/v1/tp/coord?outputFormat=rapidJSON&coord=151.206290%3A-33.884080%3AEPSG%3A4326&coordOutputFormat=EPSG%3A4326&inclFilter=1&type_1=BUS_POINT&radius_1=3000&PoisOnMapMacro=false&version=10.2.1.42"
+    func fetchStations(currentLocation: CLLocationCoordinate2D, radiusInMetres: Int) {
+        let apiUrl = "https://api.transport.nsw.gov.au/v1/tp/coord?outputFormat=rapidJSON&coord=\(currentLocation.longitude)%3A\(currentLocation.latitude)%3AEPSG%3A4326&coordOutputFormat=EPSG:4326&inclFilter=1&type_1=BUS_POINT&radius_1=\(radiusInMetres)&PoisOnMapMacro=false&version=10.2.1.42"
 
-    func fetchStations() {
-        guard let url = URL(string: stationUrl) else {
+        guard let url = URL(string: apiUrl) else {
             print("Invalid URL")
             return
         }
@@ -37,10 +38,18 @@ class StationManager: ObservableObject {
 
             do {
                 let decoded = try JSONDecoder().decode(StationResponse.self, from: data)
-                let filteredStations = self.filterAndDeduplicateStations(from: decoded.locations)
+                let filteredStations = self.filterAndRemoveDuplicateStations(from: decoded.locations)
+                
+                let current = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+
+                let sortedStations = filteredStations.sorted {
+                    let station1 = CLLocation(latitude: $0.latitude, longitude: $0.longitude)
+                    let station2 = CLLocation(latitude: $1.latitude, longitude: $1.longitude)
+                    return station1.distance(from: current) < station2.distance(from: current)
+                }
 
                 DispatchQueue.main.async {
-                    self.stations = filteredStations
+                    self.stations = sortedStations
                 }
             } catch {
                 print("Decoding error: \(error)")
@@ -50,7 +59,7 @@ class StationManager: ObservableObject {
         task.resume()
     }
 
-    private func filterAndDeduplicateStations(from locations: [StationData]) -> [StationData] {
+    private func filterAndRemoveDuplicateStations(from locations: [StationData]) -> [StationData] {
         let stationNameRegex = #"^[A-Za-z\s]+ Station$"#
         var stationMap: [String: StationData] = [:]
 

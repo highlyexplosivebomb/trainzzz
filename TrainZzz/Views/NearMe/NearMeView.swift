@@ -10,6 +10,7 @@ import MapKit
 import CoreLocation
 
 struct NearMeView: View {
+    @EnvironmentObject var locationManager: AppLocationManager
     @StateObject var stationManager = StationManager()
     @StateObject var viewModel = StationDeparturesViewModel()
     @State private var isClicked = false
@@ -74,8 +75,12 @@ struct NearMeView: View {
             Spacer()
         }
         .onAppear {
-            stationManager.fetchStations()
-            viewModel.fetchFacilities()
+            if let currentLocation = locationManager.getCurrentLocation() {
+                stationManager.fetchStations(currentLocation: currentLocation, radiusInMetres: 3000) // anything higher than this can cause issues
+                viewModel.fetchFacilities()
+            } else {
+                print("Cannot get current location.")
+            }
         }
         .sheet(isPresented: $isClicked) {
             StationDeparturesView(selectedStation: $selectedStation)
