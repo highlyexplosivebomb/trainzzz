@@ -16,6 +16,7 @@ struct NearMeView: View {
     @State private var isClicked = false
     @State private var selectedStation: StationData = StationData(id: "", name: "", type: "", coord: [], properties: nil)
     @State private var filters: [String] = []
+    @State private var currentLocation: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093)
     let initialPosition: MapCameraPosition = .userLocation(fallback: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500)))
 
     var body: some View {
@@ -41,8 +42,9 @@ struct NearMeView: View {
             .frame(height: UIScreen.main.bounds.height / 2.25)
 
             HStack {
-                FilterButton(filters: $filters, icon: "toilet", text: "Toilets", filter: "Toilets")
                 FilterButton(filters: $filters, icon: "figure.roll", text: "Accessible", filter: "Independent Access")
+                FilterButton(filters: $filters, icon: "toilet", text: "Toilets", filter: "Toilets")
+                Spacer()
             }
             .padding(.horizontal)
             
@@ -56,8 +58,8 @@ struct NearMeView: View {
                 VStack {
                     ForEach(stationManager.stations) { station in
                         let stationLocation = CLLocation(latitude: station.latitude, longitude: station.longitude)
-                        let currentLocation = CLLocation(latitude: -33.8688, longitude: 151.2093)
-                        let distance = stationLocation.distance(from: currentLocation)
+                        let currentLocationAsCLLocation = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+                        let distance = stationLocation.distance(from: currentLocationAsCLLocation)
                         
                         let stationFacilities = viewModel.getFacilitiesFromStationData(stationData: station)
                         let matchedFilters = filters.filter { filter in
@@ -69,13 +71,14 @@ struct NearMeView: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity)
             }
-            
+            .frame(maxWidth: .infinity)
+
             Spacer()
         }
         .onAppear {
-            if let currentLocation = locationManager.getCurrentLocation() {
+            if let locationPing = locationManager.getCurrentLocation() {
+                currentLocation = locationPing
                 stationManager.fetchStations(currentLocation: currentLocation, radiusInMetres: 3000) // anything higher than this can cause issues
                 viewModel.fetchFacilities()
             } else {
@@ -86,8 +89,4 @@ struct NearMeView: View {
             StationDeparturesView(selectedStation: $selectedStation)
         }
     }
-}
-
-#Preview {
-    NearMeView()
 }

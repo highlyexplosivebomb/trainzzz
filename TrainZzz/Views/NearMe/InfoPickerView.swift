@@ -11,9 +11,11 @@ import SwiftUI
 struct InfoPickerView: View {
     let station: StationFacilities
     let facilities = [
+        ("Opal card top up", "creditcard"),
         ("Toilets", "toilet"),
         ("Bike racks", "bicycle"),
-        ("Taxi rank", "car")
+        ("Taxi rank", "car"),
+        ("Free mobile phone charging", "power")
     ]
     let accessibility = [
         ("Independent Access", "figure.roll"),
