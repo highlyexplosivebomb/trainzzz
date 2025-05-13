@@ -16,7 +16,7 @@ struct NearMeView: View {
     @State private var isClicked = false
     @State private var selectedStation: StationData = StationData(id: "", name: "", type: "", coord: [], properties: nil)
     @State private var filters: [String] = []
-    let initialPosition: MapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500))
+    let initialPosition: MapCameraPosition = .userLocation(fallback: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093), distance: 7500)))
 
     var body: some View {
         VStack {
