@@ -13,9 +13,6 @@ import AudioToolbox
 class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
     private let audioHelper: AlarmAudioHelper
-    // Temp variables
-    private let targetCoordinate = CLLocationCoordinate2D(latitude: -33.863400, longitude: 151.210500) // Example: Sydney
-    private let radius: CLLocationDistance = 100.0 // meters
 
     @Published var isInRegion: Bool = false
     @Published var authorisationStatus: CLAuthorizationStatus = .notDetermined
@@ -28,7 +25,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         locationManager.allowsBackgroundLocationUpdates = true
 
         self.authorisationStatus = locationManager.authorizationStatus
-        locationManager.startUpdatingLocation() // this should be called by VM as needed
+        locationManager.startUpdatingLocation()
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -40,7 +37,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
     public func startMonitoringRegion(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance) {
         clearCurrentRegion()
         
-        // Start monitoring the new region
+        // Start monitoring
         if CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
             let region = CLCircularRegion(center: targetCoordinates, radius: targetRadius, identifier: "TargetRegion")
             region.notifyOnEntry = true
@@ -48,7 +45,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             locationManager.startMonitoring(for: region)
             print("Started monitoring region")
 
-            // If we're already in the region, trigger the alarm
+            // Logic for if we start off in the region
             if let current = locationManager.location, region.contains(current.coordinate) {
                 print("Already in region, alarm activating")
                 handleRegionEntry()
