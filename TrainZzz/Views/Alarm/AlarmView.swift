@@ -38,7 +38,7 @@ struct AlarmView: View {
             }
         }
         .onAppear {
-            stationManager.fetchStations()
+            // stationManager.fetchStations()
         }
     }
 }
