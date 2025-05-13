@@ -6,3 +6,7 @@ Group Members:
 - Lachlan Giang (LachlanGiang) - Student Number
 - John Ly (highlyexplosivebomb) - Student Number
 - Justin Wong (Yooshi124) - 25375054
+
+GitHub Repository Link:
+
+- https://github.com/highlyexplosivebomb/trainzzz
