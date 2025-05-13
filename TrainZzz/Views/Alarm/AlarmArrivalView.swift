@@ -35,6 +35,7 @@ struct AlarmArrivalView: View {
                 .background(Color.blue)
                 .cornerRadius(20)
                 .padding(.horizontal)
+                .padding(.bottom)
                 
                 Button("Create Another Alarm") {
                     navigationPath.removeLast(navigationPath.count)
@@ -51,6 +52,9 @@ struct AlarmArrivalView: View {
             .padding(.vertical)
         }
         .navigationBarBackButtonHidden(true)
+        .onDisappear() {
+            audioHelper.stopAlarmSound()
+        }
     }
 }
 
