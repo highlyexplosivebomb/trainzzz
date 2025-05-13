@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-struct LocationView: View {
+struct AlarmJourneyView: View {
     @EnvironmentObject var locationManager: AppLocationManager
     private let targetCoordinates: CLLocationCoordinate2D
     private let targetRadius: CLLocationDistance
@@ -109,7 +109,7 @@ struct LocationView: View {
     let locationManager = AppLocationManager(audioHelper: audioHelper)
     let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
     
-    LocationView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
+    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
         .environmentObject(locationManager)
         .environmentObject(audioHelper)
 }

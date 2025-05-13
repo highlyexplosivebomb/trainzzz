@@ -9,6 +9,8 @@ import SwiftUI
 import CoreLocation
 
 struct AlarmConfigView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @StateObject private var alarmConfigViewModel = AlarmConfigViewModel()
     @StateObject private var destinationViewModel: StopViewModel
 
@@ -55,7 +57,7 @@ struct AlarmConfigView: View {
                             destinationViewModel.searchText = stop.stopName
                             isFieldFocused = false
                         }
-                        .background(Color.white)
+                        .background(colorScheme == .dark ? Color(.darkGray) : Color.white)
                         .cornerRadius(12)
                         .shadow(radius: 5)
                         .padding(.top, -8)
@@ -65,7 +67,7 @@ struct AlarmConfigView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color.white)
+                        .fill(colorScheme == .dark ? Color(.darkGray) : Color.white)
                         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
                 )
                 .padding(.horizontal)
@@ -76,7 +78,7 @@ struct AlarmConfigView: View {
             if let destination = alarmConfigViewModel.destination {
                 let coordinate = CLLocationCoordinate2D(latitude: destination.stopLat, longitude: destination.stopLon)
 
-                NavigationLink(destination: LocationView(
+                NavigationLink(destination: AlarmJourneyView(
                     targetCoordinates: coordinate,
                     targetRadius: alarmConfigViewModel.alarmRadius,
                     destination: destination.stopName
