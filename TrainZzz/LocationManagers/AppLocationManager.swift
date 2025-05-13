@@ -38,13 +38,7 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
     }
 
     public func startMonitoringRegion(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance) {
-        // Clear the TargetRegion region
-        for region in locationManager.monitoredRegions {
-            if let circular = region as? CLCircularRegion, circular.identifier == "TargetRegion" {
-                locationManager.stopMonitoring(for: circular)
-                print("Stopped monitoring previous region")
-                }
-        }
+        clearCurrentRegion()
         
         // Start monitoring the new region
         if CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self) {
@@ -63,7 +57,21 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             print("Issue starting region monitoring")
         }
     }
-
+    
+    public func stopMonitoringRegion() {
+        clearCurrentRegion()
+        isInRegion = false
+    }
+    
+    private func clearCurrentRegion() {
+        for region in locationManager.monitoredRegions {
+            if let circular = region as? CLCircularRegion, circular.identifier == "TargetRegion" {
+                locationManager.stopMonitoring(for: circular)
+                print("Stopped monitoring previous region")
+            }
+        }
+    }
+    
     public func request() {
         locationManager.requestAlwaysAuthorization()
     }
@@ -110,14 +118,5 @@ class AppLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
                 UIApplication.shared.endBackgroundTask(taskID)
             }
         }
-    }
-
-    // Use the audio helper to start and stop the alarm
-    public func playAlarmSound() {
-        audioHelper.playAlarmSound()
-    }
-
-    public func stopAlarmSound() {
-        audioHelper.stopAlarmSound()
     }
 }

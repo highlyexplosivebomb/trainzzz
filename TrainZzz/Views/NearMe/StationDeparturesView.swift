@@ -82,7 +82,10 @@ struct StationDeparturesView: View {
     func startTimer() {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { second in
             timer += 1
-            viewModel.fetchVehiclePositions()
+            
+            if timer % 8 == 0 {
+                viewModel.fetchVehiclePositions()
+            }
         }
     }
 }

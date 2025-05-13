@@ -10,41 +10,27 @@ import MapKit
 import CoreLocation
 
 struct AlarmJourneyView: View {
+    @Binding var navigationPath: NavigationPath
+    
     @EnvironmentObject var locationManager: AppLocationManager
-    private let targetCoordinates: CLLocationCoordinate2D
-    private let targetRadius: CLLocationDistance
-    private let heading: String
+    @EnvironmentObject var audioHelper: AlarmAudioHelper
     
-    var distanceToDestination: String {
-        guard let currentLocation = locationManager.getCurrentLocation() else {
-            return "-"
-        }
-        let current = CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-        let target = CLLocation(latitude: targetCoordinates.latitude, longitude: targetCoordinates.longitude)
-        let distance = current.distance(from: target)
-        
-        if distance >= 1000 {
-            return String(format: "%.1f km", distance / 1000)
-        } else {
-            return "\(Int(distance)) m"
-        }
-    }
+    @StateObject private var alarmJourneyViewModel: AlarmJourneyViewModel
     
-    init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String) {
-        self.targetCoordinates = targetCoordinates
-        self.targetRadius = targetRadius
-        self.heading = "My Current Trip to \(destination)"
+    init(targetCoordinates: CLLocationCoordinate2D, targetRadius: CLLocationDistance, destination: String, navigationPath: Binding<NavigationPath>) {
+        self._navigationPath = navigationPath
+        _alarmJourneyViewModel = StateObject(wrappedValue: AlarmJourneyViewModel(
+            currentLocation: CLLocationCoordinate2D(latitude: 0, longitude: 0),
+            targetCoordinates: targetCoordinates,
+            targetRadius: targetRadius,
+            destinationName: destination
+        ))
     }
     
     var body: some View {
         VStack {
-            Color(locationManager.isInRegion ? .green : .red)
-                .edgesIgnoringSafeArea(.all)
-                .animation(.easeInOut, value: locationManager.isInRegion)
-                .navigationBarBackButtonHidden(true) // this will hide the back button
-            
             VStack(alignment: .leading, spacing: 15) {
-                Text(heading)
+                Text(alarmJourneyViewModel.heading)
                     .font(.largeTitle)
                     .bold()
                     .padding(.top)
@@ -53,52 +39,58 @@ struct AlarmJourneyView: View {
             .padding(.horizontal, 15)
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            MapView(coordinate: locationManager.getCurrentLocation()!)
+            MapView(coordinate: alarmJourneyViewModel.currentLocation)
             
             VStack(alignment: .leading, spacing: 15) {
                 Text("Nearest Station")
                     .font(.title2)
                     .bold()
                 
-                Text("Strathfield Station")
+                Text(alarmJourneyViewModel.nearestStation)
                     .font(.title2)
                 
                 Text("Distance to Destination")
                     .font(.title2)
                     .bold()
                 
-                Text(distanceToDestination)
+                Text(alarmJourneyViewModel.distanceFromDestination)
                     .font(.title2)
             }
             .padding(.horizontal, 15)
             .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack {
-                Button("Start Alarm", action: {
-                    locationManager.playAlarmSound()
-                })
-                .font(.headline)
+                Button("Terminate Alarm") {
+                    navigationPath.removeLast(navigationPath.count)
+                }
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
                 .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(30)
-            
-                Button("Stop Alarm", action: {
-                    locationManager.stopAlarmSound()
-                })
-                .font(.headline)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(30)
+                .frame(maxWidth: .infinity)
+                .background(Color.red)
+                .cornerRadius(20)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             if locationManager.authorisationStatus == .authorizedAlways {
-                locationManager.startMonitoringRegion(targetCoordinates: self.targetCoordinates, targetRadius: self.targetRadius)
+                locationManager.startMonitoringRegion(targetCoordinates: alarmJourneyViewModel.targetCoordinates, targetRadius: alarmJourneyViewModel.targetRadius)
+                alarmJourneyViewModel.getAndSetLocationManager(manager: locationManager)
             } else {
                 locationManager.request()
+            }
+        }
+        .onDisappear {
+            print("View destroying...")
+            alarmJourneyViewModel.onDestroyed()
+        }
+        .onReceive(locationManager.$isInRegion) { newValue in
+            if newValue {
+                print("navigating to arrival...")
+                navigationPath.append(AlarmRoute.arrival)
             }
         }
     }
@@ -109,7 +101,7 @@ struct AlarmJourneyView: View {
     let locationManager = AppLocationManager(audioHelper: audioHelper)
     let coordinate = CLLocationCoordinate2D(latitude: -33.863596, longitude: 151.208975)
     
-    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station")
+    AlarmJourneyView(targetCoordinates: coordinate, targetRadius: 200, destination: "Strathfield Station", navigationPath: .constant(NavigationPath()))
         .environmentObject(locationManager)
         .environmentObject(audioHelper)
 }
